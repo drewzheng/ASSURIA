@@ -1,0 +1,2213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AssurIA</title>
+    <style>
+        :root { --primary: #1e3a5f; --accent: #00a878; --danger: #e74c3c; --light: #f8f9fa; --blue: #3498db; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: var(--light); }
+        .header { background: linear-gradient(135deg, #1e3a5f, #2d5a87); color: white; padding: 18px; text-align: center; }
+        .header h1 { font-size: 24px; } .header span { color: var(--accent); }
+        .header p { font-size: 13px; margin-top: 8px; font-weight: 500; }
+        .header .logo { max-width: 220px; margin: 0 auto 10px; display: block; border-radius: 10px; }
+        .nav { display: flex; background: white; position: sticky; top: 0; z-index: 100; }
+        .nav button { flex: 1; padding: 11px; border: none; background: none; font-size: 10px; cursor: pointer; border-bottom: 3px solid transparent; }
+        .nav button.on { color: var(--primary); border-bottom-color: var(--accent); font-weight: bold; }
+        .main { padding: 12px; max-width: 500px; margin: 0 auto; }
+        .page { display: none; } .page.on { display: block; }
+        .card { background: white; border-radius: 10px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .card h3 { font-size: 13px; color: var(--primary); margin-bottom: 10px; }
+        .types { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .type { background: var(--light); border-radius: 8px; padding: 15px 10px; text-align: center; cursor: pointer; border: 2px solid transparent; }
+        .type.on { border-color: var(--accent); background: #e8f5f0; }
+        .type-icon { font-size: 22px; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 9px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px; font-size: 14px; }
+        label { font-size: 11px; font-weight: 600; display: block; margin-bottom: 3px; color: #555; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 6px; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-outline { background: white; border: 2px solid #1e3a5f; color: #1e3a5f; }
+        .btn-link { background: none; border: none; color: var(--blue); text-decoration: underline; font-size: 11px; cursor: pointer; padding: 4px 0; margin: 0 0 8px 0; width: auto; }
+        .btn-search { background: var(--blue); color: white; padding: 9px 14px; width: auto; margin: 0; border-radius: 6px; border: none; cursor: pointer; }
+        .input-btn { display: flex; gap: 6px; margin-bottom: 8px; }
+        .input-btn input { flex: 1; margin-bottom: 0; }
+        .bonus-toggle { display: flex; gap: 4px; margin-bottom: 8px; }
+        .bonus-toggle button { flex: 1; padding: 6px; border: 1px solid #ddd; border-radius: 4px; background: white; font-size: 10px; cursor: pointer; }
+        .bonus-toggle button.on { background: var(--accent); color: white; border-color: var(--accent); }
+        .vehicle-found { background: #e8f5f0; border: 1px solid var(--accent); border-radius: 6px; padding: 12px; margin-bottom: 10px; }
+        .vehicle-found h4 { font-size: 13px; color: var(--primary); margin-bottom: 8px; }
+        .vehicle-found .info { font-size: 12px; line-height: 1.6; }
+        .manual-form { background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 12px; margin-top: 8px; margin-bottom: 10px; }
+        .manual-form h4 { font-size: 12px; color: #856404; margin-bottom: 10px; }
+        .result { background: white; border-radius: 10px; margin-bottom: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .result-top { padding: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--accent); }
+        .result-price { font-size: 16px; font-weight: bold; color: var(--accent); }
+        .result-body { padding: 10px; background: var(--light); font-size: 10px; }
+        .score { display: inline-block; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+        .score-high { background: #d4edda; color: #155724; }
+        .score-mid { background: #fff3cd; color: #856404; }
+        .bar { height: 4px; background: #ddd; border-radius: 2px; display: inline-block; width: 50px; vertical-align: middle; }
+        .bar-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+        .recommend { background: linear-gradient(135deg, #1e3a5f, #2d5a87); color: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; }
+        .recommend .big { font-size: 18px; font-weight: bold; color: var(--accent); }
+        .tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+        .tab { flex: 1; padding: 8px; text-align: center; background: white; border: 1px solid #ddd; border-radius: 6px; font-size: 11px; cursor: pointer; }
+        .tab.on { background: var(--primary); color: white; border-color: var(--primary); }
+        .gar-opt { display: flex; gap: 6px; margin-bottom: 10px; }
+        .gar-opt button { flex: 1; padding: 8px; border: 2px solid #ddd; border-radius: 6px; background: white; font-size: 10px; cursor: pointer; }
+        .gar-opt button.on { border-color: var(--accent); background: #e8f5f0; font-weight: bold; }
+        .btn-row { display: flex; gap: 6px; margin-top: 8px; }
+        .btn-row button { flex: 1; }
+        .hide { display: none; }
+        .calc-info { background: #e3f2fd; border-radius: 6px; padding: 8px; margin-bottom: 10px; font-size: 10px; color: #1565c0; }
+        .power-row { display: flex; gap: 6px; align-items: flex-end; }
+        .power-row select { flex: 1; margin-bottom: 0; }
+        .power-row input { width: 70px; margin-bottom: 0; }
+    
+/* AUTH CSS */
+#authOv{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:99999;}
+.authC{background:#fff;border-radius:20px;padding:25px;max-width:380px;width:90%;text-align:center;max-height:90vh;overflow-y:auto;}
+.authC h1{color:#1e3a5f;font-size:24px;margin-bottom:5px;}
+.authC .w{color:#e74c3c;font-size:13px;font-weight:bold;margin-bottom:15px;}
+.tb{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;padding:15px;border-radius:12px;margin-bottom:15px;}
+.tb .bg{font-size:16px;font-weight:bold;}
+.tb .sm{font-size:11px;margin-top:5px;}
+.bG{width:100%;padding:16px;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:10px;}
+.bB{width:100%;padding:14px;background:#1e3a5f;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;margin-bottom:15px;}
+.aF{display:none;text-align:left;margin-top:15px;}
+.aF.sh{display:block;}
+.aF input{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:8px;margin-bottom:10px;font-size:14px;box-sizing:border-box;}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.bS{width:100%;padding:14px;background:#00a878;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:bold;cursor:pointer;margin-top:5px;}
+.lB{background:none;border:none;color:#3498db;text-decoration:underline;font-size:12px;cursor:pointer;margin-top:10px;}
+.uB{background:#1e3a5f;color:#fff;padding:8px 12px;display:none;justify-content:space-between;align-items:center;}
+.uB .lf{display:flex;align-items:center;gap:8px;}
+.av{width:28px;height:28px;background:#00a878;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:12px;}
+.tB{background:#f39c12;padding:3px 8px;border-radius:10px;font-size:10px;}
+.bO{background:transparent;border:1px solid #fff;color:#fff;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:11px;text-decoration:none;}
+.pW{position:relative;}
+.pW input{padding-right:40px;}
+.eB{position:absolute;right:8px;top:10px;cursor:pointer;font-size:16px;background:none;border:none;}
+</style>
+<script>
+if(window.location.search.indexOf('deco=1')!==-1){
+    localStorage.removeItem('aiaCur');
+    window.location.href=window.location.pathname;
+}
+</script>
+</head>
+<body>
+
+<div id="authOv">
+<div class="authC">
+<h1>🛡️ AssurIA</h1>
+<div class="w">⚠️ INSCRIPTION OBLIGATOIRE</div>
+<div class="tb"><div class="bg">🎁 ESSAI GRATUIT 3 JOURS</div><div class="sm">Accès complet à l'application</div></div>
+<button class="bG" type="button" onclick="showRegister()">✨ CRÉER MON COMPTE</button>
+<button class="bB" type="button" onclick="showLogin()">🔑 Se connecter</button>
+
+<!-- Formulaire Inscription -->
+<div id="rF" class="aF">
+<h3 style="margin-bottom:15px;color:#1e3a5f;">📝 Inscription</h3>
+<div class="r2">
+<input type="text" id="rPrenom" placeholder="Prénom *">
+<input type="text" id="rNom" placeholder="Nom *">
+</div>
+<input type="email" id="rEmail" placeholder="Email *">
+<input type="tel" id="rTel" placeholder="Téléphone *">
+<div class="pW">
+<input type="password" id="rPass" placeholder="Mot de passe (min 6) *">
+<button type="button" class="eB" onclick="togglePass('rPass', this)">👁️</button>
+</div>
+<div class="pW">
+<input type="password" id="rPass2" placeholder="Confirmer mot de passe *">
+<button type="button" class="eB" onclick="togglePass('rPass2', this)">👁️</button>
+</div>
+<button class="bS" type="button" onclick="doRegister()">✅ VALIDER L'INSCRIPTION</button>
+<button class="lB" type="button" onclick="showLogin()">← Retour</button>
+</div>
+
+<!-- Formulaire Connexion -->
+<div id="lF" class="aF">
+<h3 style="margin-bottom:15px;color:#1e3a5f;">🔑 Connexion</h3>
+<div id="loginError" style="display:none;background:#ffe0e0;color:#c0392b;padding:10px;border-radius:6px;margin-bottom:10px;font-size:13px;"></div>
+<input type="email" id="lEmail" placeholder="Email">
+<div class="pW">
+<input type="password" id="lPass" placeholder="Mot de passe">
+<button type="button" class="eB" onclick="togglePass('lPass', this)">👁️</button>
+</div>
+<button class="bS" type="button" onclick="doLogin()">✅ SE CONNECTER</button>
+<button class="lB" type="button" onclick="showRegister()">Créer un compte</button>
+<button class="lB" type="button" onclick="showForgot()">Mot de passe oublié ?</button>
+</div>
+
+<!-- Formulaire Mot de passe oublié -->
+<div id="fF" class="aF">
+<h3 style="margin-bottom:15px;color:#1e3a5f;">📧 Réinitialisation</h3>
+<p style="font-size:12px;color:#666;margin-bottom:10px;">Entrez votre email pour recevoir un lien de réinitialisation</p>
+<input type="email" id="fEmail" placeholder="Email">
+<button class="bS" type="button" onclick="doReset()">📧 ENVOYER</button>
+<button class="lB" type="button" onclick="showLogin()">← Retour connexion</button>
+</div>
+</div>
+</div>
+
+<!-- Barre utilisateur connecté -->
+<div class="uB" id="uB">
+<div class="lf">
+<div class="av" id="uAv">?</div>
+<span id="uNm">Utilisateur</span>
+<span class="tB" id="uTb">🎁 3j</span>
+</div>
+<a href="?deco=1" class="bO">🚪 Déconnexion</a>
+</div>
+
+    <div class="header">
+        <img src="data:image/png;base64,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HEEUk000000kMdsPIb7zzzziAB332332032EMMMKMIIIBTzz777zzCAAX303CAAwzkEEAzwkEEV333333333333/AP8Aff604ww3OssMIABPffffffffaQQAgggghjihvPvvusogASXffaAAEPeQQQSPPPbTfffffffffffffff/AH/sMMMbzyAAAAAD33333333mEAAIIIIIJbz7zy76IMMAl3/AP8AeAACHeQQDPPPOHfffffffffffffffff/AP8ArGO888gAAAAE999999995DCACCCCCCO+++++WjDLjf8Af/0IADPcYQQDPIIIBdfffffffffffffffff8/wCPbzwjAAAAAR33333333kEIIIYIIIJb777rZMMMf8Af/7yygE89hBAA88gAABXV999999999999/5hDDDGLDW8IAAAAA999999195BCCCCyCCS++++++DjH/8A/wD/APveCKXhBBU84gAAANdiR999999999999/BDDDG88MM8oAAAAAV9999pBBBDCCCCCG+++++73+DH/wD/AP7JLoY5+MGABzygAX333AQH33333333333/APJDDD88888wgAAAAE99995BDCCCCCCCGu++++/jDLPf/wD/AKoI477+sGBzzTAAH332EBb33333333333kHOMMMfzzzzwAAA33333330EMIIIIIIIYb7777MMN//wD/AP8A7oI7r+Mc8zzyAAF2332AxgEH33333/8A/wD+wQwwwzHPPPOIAAHffffecd6wwgggmghjlvvvvoww3/8A/wD/APpjnvr8w9vvsBAAXfffZPOAQ3fffffff+wQQww3PPPPPKAAABfffecQQQQwwghiggnvvvvvuww//wD/AO/+iG/6HjPe6yyABFd99AAc5BJe99999999JDDDDD088884AAAA999/hBBDDDCCW6COc2++8+pBvf8A/wD776Ib/wD7De++iCABF984AAc8Bc8+d99999997DDDwEc8888oAAN999/rDDDDCCCA8E8+ue+85BBN/wD/AHzgII7/AP8Ax3vugggwRffOAAHMZfPPIPff/wD/AN9//LDDF888884AEN9hRhBDDDCCCCEiCU888888BNd/9884ACe//wCw1vvggwk//fIABPIRfPPOAtf/AP8A/wD/AP8A/DDc888848sE/wC4wQQQwwww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" class="logo" alt="AssurIA" style="max-width:180px;margin-bottom:10px;border-radius:10px;">
+        <p>Le comparateur de garanties et de prix propulsé par l'IA.</p>
+    </div>
+    <div class="nav">
+        <button id="n1" class="on">🏠 Accueil</button>
+        <button id="n2">📝 Formulaire</button>
+        <button id="n3">📊 Résultats</button>
+        <button id="n4">💾 Favoris</button>
+        <button id="n5">💎 Premium</button>
+    </div>
+    <div class="main">
+        <div id="p1" class="page on">
+            <div class="card">
+                <h3>Choisissez votre assurance</h3>
+                <div class="types">
+                    <div class="type" data="auto" onclick="sel(this,'auto')"><div class="type-icon">🚗</div>Auto</div>
+                    <div class="type" data="moto" onclick="sel(this,'moto')"><div class="type-icon">🏍️</div>Moto</div>
+                    <div class="type" data="habitation" onclick="sel(this,'habitation')"><div class="type-icon">🏠</div>Habitation</div>
+                    <div class="type" data="pno" onclick="sel(this,'pno')"><div class="type-icon">🏢</div>PNO<br><small style="font-size:9px;color:#666">(propriétaire non occupant)</small></div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="go(2)">Commencer →</button>
+        </div>
+        
+        <div id="p2" class="page">
+            <div class="card">
+                <h3 id="ft">Votre profil</h3>
+                
+                <!-- FORM AUTO -->
+                <div id="form-auto" style="display:none">
+                    <label>Immatriculation</label>
+                    <div class="input-btn">
+                        <input type="text" id="immat" placeholder="AB-123-CD" maxlength="9" oninput="this.value=this.value.toUpperCase()">
+                        <button class="btn-search" onclick="searchPlate()">🔍</button>
+                    </div>
+                    <div id="vres" style="display:none"></div>
+                    <button class="btn-link" onclick="toggleManual()">✏️ Si différent, renseigner manuellement</button>
+                    <div id="manual-auto" class="manual-form hide">
+                        <h4>📝 Informations du véhicule</h4>
+                        <div class="row">
+                            <div><label>Marque</label><input type="text" id="mq" placeholder="Ex: Peugeot"></div>
+                            <div><label>Modèle</label><input type="text" id="md" placeholder="Ex: 308"></div>
+                        </div>
+                        <label>1ère mise en circulation</label>
+                        <input type="month" id="dc">
+                        <label>Puissance CV</label>
+                        <div class="power-row">
+                            <select id="cv" onchange="toggleCvManual()"><option value="4">4 CV</option><option value="5">5 CV</option><option value="6">6 CV</option><option value="7" selected>7 CV</option><option value="8">8 CV</option><option value="9">9 CV</option><option value="10">10 CV</option><option value="11">11 CV</option><option value="12">12 CV</option><option value="13">13+ CV</option><option value="man">Autre (manuel)</option></select>
+                            <input type="number" id="cvm" placeholder="CV" style="display:none">
+                        </div>
+                        <label>Carburant</label>
+                        <select id="cb"><option>Essence</option><option selected>Diesel</option><option>Électrique</option><option>Hybride</option><option>Essence + Hybride</option></select>
+                    </div>
+                    <div><label>Date permis</label><input type="date" id="dp" onchange="calcBonusAuto()"></div>
+                    <div><label>Âge conducteur</label><select id="ag"><option value="22">18-25 ans</option><option value="30" selected>26-35 ans</option><option value="43">36-50 ans</option><option value="55">50+ ans</option></select></div>
+                    <label>Bonus/Malus <span id="bonus-calc-info" style="font-weight:normal;color:#00a878;font-size:10px"></span></label>
+                    <div class="bonus-toggle"><button id="bauto" class="on" onclick="togB('auto')">Auto</button><button id="bs" onclick="togB('s')">Liste</button><button id="bm" onclick="togB('m')">Manuel</button></div>
+                    <div id="bonus-auto-info" class="calc-info" style="margin-bottom:8px">💡 Le bonus est calculé automatiquement: 5%/an sans accident (max 0.50 après 13 ans)</div>
+                    <select id="bsl" style="display:none"><option value="0.50">0.50 - Bonus max</option><option value="0.60">0.60</option><option value="0.70">0.70</option><option value="0.76">0.76</option><option value="0.85">0.85</option><option value="1.00" selected>1.00 - Neutre</option><option value="1.10">1.10</option><option value="1.25">1.25</option><option value="1.50">1.50 - Malus</option><option value="2.00">2.00+ Malus fort</option></select>
+                    <input type="number" id="bmn" placeholder="Ex: 0.76" step="0.01" min="0.50" max="3.50" style="display:none">
+                    <input type="text" id="bautoval" readonly style="background:#e8f5f0;font-weight:bold;color:#1e3a5f" value="1.00 - Entrez date permis">
+                </div>
+                
+                <!-- FORM MOTO -->
+                <div id="form-moto" style="display:none">
+                    <label>Immatriculation</label>
+                    <div class="input-btn">
+                        <input type="text" id="immatm" placeholder="AB-123-CD" maxlength="9" oninput="this.value=this.value.toUpperCase()">
+                        <button class="btn-search" onclick="searchPlateM()">🔍</button>
+                    </div>
+                    <div id="vresm" style="display:none"></div>
+                    <button class="btn-link" onclick="toggleManualM()">✏️ Si différent, renseigner manuellement</button>
+                    <div id="manual-moto" class="manual-form hide">
+                        <h4>📝 Informations de la moto</h4>
+                        <div class="row">
+                            <div><label>Marque</label><input type="text" id="mqm" placeholder="Ex: Yamaha"></div>
+                            <div><label>Modèle</label><input type="text" id="mdm" placeholder="Ex: MT-07"></div>
+                        </div>
+                        <label>1ère mise en circulation</label>
+                        <input type="month" id="dcm">
+                        <label>Cylindrée</label>
+                        <select id="cyl"><option value="50">50cc</option><option value="125">125cc</option><option value="400" selected>300-500cc</option><option value="650">600-750cc</option><option value="900">800-1000cc</option><option value="1100">1000cc+</option></select>
+                        <label>Carburant</label>
+                        <select id="cbm"><option selected>Essence</option><option>Électrique</option></select>
+                    </div>
+                    <div><label>Date permis moto</label><input type="date" id="dpm" onchange="calcBonusAutoM()"></div>
+                    <div><label>Âge</label><select id="agm"><option value="22">18-25</option><option value="30" selected>26-35</option><option value="43">36-50</option><option value="55">50+</option></select></div>
+                    <label>Bonus <span id="bonus-calc-info-m" style="font-weight:normal;color:#00a878;font-size:10px"></span></label>
+                    <div class="bonus-toggle"><button id="bautom" class="on" onclick="togBm('auto')">Auto</button><button id="bsm" onclick="togBm('s')">Liste</button><button id="bmm" onclick="togBm('m')">Manuel</button></div>
+                    <div id="bonus-auto-info-m" class="calc-info" style="margin-bottom:8px">💡 Le bonus est calculé automatiquement: 5%/an sans accident (max 0.50 après 13 ans)</div>
+                    <select id="bslm" style="display:none"><option value="0.50">0.50</option><option value="0.60">0.60</option><option value="0.70">0.70</option><option value="0.76" selected>0.76</option><option value="0.85">0.85</option><option value="1.00">1.00</option><option value="1.25">1.25</option><option value="1.50">1.50</option></select>
+                    <input type="number" id="bmnm" placeholder="0.76" step="0.01" min="0.50" max="2.00" style="display:none">
+                    <input type="text" id="bautovalm" readonly style="background:#e8f5f0;font-weight:bold;color:#1e3a5f" value="1.00 - Entrez date permis">
+                </div>
+                
+                <!-- FORM HABITATION -->
+                <div id="form-habitation" style="display:none">
+                    <label>Adresse du logement</label>
+                    <div class="input-btn">
+                        <input type="text" id="adr" placeholder="123 rue de Paris, 75001">
+                        <button class="btn-search" onclick="searchAddress()">🔍</button>
+                    </div>
+                    <div id="adrres" style="display:none"></div>
+                    <div class="row">
+                        <div><label>Type de logement</label><select id="typ" onchange="showEtage()"><option selected>Appartement</option><option>Maison</option></select></div>
+                        <div><label>Nombre de pièces</label><select id="pie"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6+</option></select></div>
+                    </div>
+                    <label>Type d'occupation</label>
+                    <div class="bonus-toggle" id="resType">
+                        <button class="on" onclick="selResType(this,'principale')">🏠 Principale</button>
+                        <button onclick="selResType(this,'secondaire')">🏖️ Secondaire</button>
+                    </div>
+                    <div class="row">
+                        <div><label>Surface m²</label><input type="number" id="sf" value="70"></div>
+                        <div id="etage-div"><label>Étage</label><select id="eta"><option value="0">Rez-de-chaussée</option><option value="1">1er étage</option><option selected value="2">2ème étage</option><option value="3">3ème étage</option><option value="4">4ème étage</option><option value="5">5ème étage</option><option value="6">Dernier étage</option><option value="7">Étage intermédiaire</option></select></div>
+                    </div>
+                    <div class="row">
+                        <div><label>Année construction</label><select id="annc"><option>Avant 1970</option><option>1970-1990</option><option selected>1990-2010</option><option>Après 2010</option></select></div>
+                        <div><label>Système alarme</label><select id="alarm"><option>Non</option><option selected>Oui</option></select></div>
+                    </div>
+                    <div class="row">
+                        <div><label>Capital mobilier €</label><input type="number" id="vl" value="15000"></div>
+                        <div><label>Capital objets valeur €</label><input type="number" id="objval" value="0"></div>
+                    </div>
+                </div>
+                
+                <!-- FORM PNO -->
+                <div id="form-pno" style="display:none">
+                    <label>Adresse du bien</label>
+                    <div class="input-btn">
+                        <input type="text" id="adrp" placeholder="123 rue de Paris, 75001">
+                        <button class="btn-search" onclick="searchAddressP()">🔍</button>
+                    </div>
+                    <div id="adrresp" style="display:none"></div>
+                    <div class="row">
+                        <div><label>Type de bien</label><select id="typp" onchange="showEtageP()"><option selected>Appartement</option><option>Maison</option></select></div>
+                        <div><label>Nombre de pièces</label><select id="piep"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8+</option></select></div>
+                    </div>
+                    <div class="row">
+                        <div><label>Surface m²</label><input type="number" id="sfp" value="70"></div>
+                        <div id="etagep-div"><label>Étage</label><select id="etap"><option value="0">Rez-de-chaussée</option><option selected value="2">Étage intermédiaire</option><option value="6">Dernier étage</option></select></div>
+                    </div>
+                    <div class="row">
+                        <div><label>Nombre de lots</label><select id="lts"><option selected>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10+</option></select></div>
+                        <div><label>Valeur du bien €</label><input type="number" id="vlp" value="200000"></div>
+                    </div>
+                    <div class="row">
+                        <div><label>Année construction</label><select id="anncp"><option>Avant 1970</option><option>1970-1990</option><option selected>1990-2010</option><option>Après 2010</option></select></div>
+                        <div><label>Piscine</label><select id="pool"><option selected>Non</option><option>Oui</option></select></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Niveau de garantie</h3>
+                <div class="gar-opt">
+                    <button class="on" onclick="selG(this,'tous')">🛡️ Tous risques</button>
+                    <button onclick="selG(this,'tiers+')">📋 Tiers+</button>
+                    <button onclick="selG(this,'tiers')">📄 Tiers simple</button>
+                </div>
+            </div>
+            
+            <div id="calc-info" class="calc-info" style="display:none">
+                💡 Le prix est calculé selon votre bonus/malus, ancienneté du permis, âge et puissance du véhicule.
+            </div>
+            
+            <button class="btn btn-primary" onclick="comparer()">🔍 Comparer les offres</button>
+            <div class="btn-row">
+                <button class="btn btn-danger" onclick="clr()">🗑️ Effacer</button>
+                <button class="btn btn-outline" onclick="go(1)">← Retour</button>
+            </div>
+        </div>
+        
+        <div id="p3" class="page">
+            <div id="ai-reco-box" style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:15px;border-radius:12px;margin-bottom:12px;box-shadow:0 2px 8px rgba(102,126,234,0.3)">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                    <span style="font-size:24px">🤖</span>
+                    <span style="font-size:14px;font-weight:600">Recommandation IA</span>
+                </div>
+                <div id="ai-reco-content" style="font-size:13px">
+                    <div style="text-align:center;color:rgba(255,255,255,0.7);padding:10px">Faites une simulation pour voir la recommandation</div>
+                </div>
+            </div>
+            <div class="tabs">
+                <button class="tab on" id="tab1" onclick="sortRes('smart')" style="background:#9b59b6;color:#fff;border:2px solid #9b59b6;">🤖 IA</button>
+                <button class="tab" id="tab2" onclick="sortRes('prix')" style="background:#27ae60;color:#fff;border:2px solid #27ae60;">💰 Prix</button>
+                <button class="tab" id="tab3" onclick="sortRes('score')" style="background:#3498db;color:#fff;border:2px solid #3498db;">🛡️ Garanties</button>
+            </div>
+            <div id="res"></div>
+            <button class="btn btn-outline" onclick="go(2)" style="margin-top:10px">← Modifier le formulaire</button>
+        </div>
+        
+        <div id="p4" class="page">
+            <div class="card">
+                <h3>💾 Favoris sauvegardés</h3>
+                <div id="sl"></div>
+            </div>
+            <button class="btn btn-outline" onclick="go(1)">← Accueil</button>
+        </div>
+        <div id="p5" class="page">
+            <div class="card" style="text-align:center;">
+                <div style="font-size:40px;margin:15px 0;">💎</div>
+                <h3>Abonnement Premium</h3>
+                <p style="color:#e74c3c;font-weight:bold;margin:10px 0;">🔥 OFFRE DE LANCEMENT 🔥</p>
+                
+                <div style="background:#e3f2fd;padding:15px;border-radius:10px;margin:10px 0;border:2px solid #2196f3;">
+                    <label style="cursor:pointer;display:block;">
+                        <input type="radio" name="plan" value="mois" checked style="width:18px;height:18px;vertical-align:middle;">
+                        <span style="font-weight:bold;color:#1565c0;">📦 MENSUEL</span><br>
+                        <span style="font-size:20px;font-weight:bold;color:#2196f3;">4,90 €</span>
+                        <span style="font-size:11px;color:#666;">puis 9,90 €/mois</span>
+                    </label>
+                </div>
+                
+                <div style="background:#e8f5e9;padding:15px;border-radius:10px;margin:10px 0;border:2px solid #4caf50;position:relative;">
+                    <span style="position:absolute;top:-8px;right:8px;background:#ff5722;color:#fff;padding:3px 8px;border-radius:12px;font-size:10px;">⭐ -20%</span>
+                    <label style="cursor:pointer;display:block;">
+                        <input type="radio" name="plan" value="annee" style="width:18px;height:18px;vertical-align:middle;">
+                        <span style="font-weight:bold;color:#2e7d32;">📦 ANNUEL</span><br>
+                        <span style="font-size:20px;font-weight:bold;color:#4caf50;">79 €</span>
+                        <span style="font-size:11px;text-decoration:line-through;color:#999;">99 €</span>
+                        <span style="font-size:11px;color:#2e7d32;font-weight:bold;display:block;">💰 Économisez 39 €</span>
+                    </label>
+                </div>
+                
+                <div style="background:#fafafa;padding:12px;border-radius:8px;margin:15px 0;text-align:left;">
+                    <h4 style="margin-bottom:10px;text-align:center;">💳 Paiement</h4>
+                    <input type="text" id="cardNum" placeholder="Numéro de carte" maxlength="19" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;margin:5px 0;box-sizing:border-box;">
+                    <div style="display:flex;gap:10px;">
+                        <input type="text" id="cardExp" placeholder="MM/AA" maxlength="5" style="flex:1;padding:10px;border:1px solid #ddd;border-radius:6px;margin:5px 0;">
+                        <input type="text" id="cardCvc" placeholder="CVC" maxlength="3" style="width:70px;padding:10px;border:1px solid #ddd;border-radius:6px;margin:5px 0;">
+                    </div>
+                    <input type="text" id="cardName" placeholder="Nom sur la carte" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;margin:5px 0;box-sizing:border-box;">
+                    <button type="button" id="btnPay" style="width:100%;padding:14px;background:#27ae60;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:8px;">✅ PAYER</button>
+                </div>
+                <p style="font-size:10px;color:#888;">🔒 Paiement sécurisé</p>
+            </div>
+            <button class="btn btn-outline" onclick="go(1)">← Accueil</button>
+        </div>
+    </div>
+
+    <script>
+        var tp=null,gr='tous',results=[],saved=[];
+        var bm='auto',bmm='auto',mO=false,mOm=false;
+        var resType='principale'; // Type résidence habitation
+        
+        // ========== FONCTION CLÉ FAVORIS PAR UTILISATEUR ==========
+        function getUserFavKey() {
+            if(currentUser && currentUser.e) {
+                return 'ai_fav_' + currentUser.e.replace(/[@.]/g, '_');
+            }
+            return 'ai_fav_guest';
+        }
+        
+        // ========== CHARGER FAVORIS UTILISATEUR ==========
+        function loadUserFavs() {
+            try {
+                saved = JSON.parse(localStorage.getItem(getUserFavKey()) || '[]');
+                if(!Array.isArray(saved)) saved = [];
+            } catch(e) {
+                saved = [];
+            }
+        }
+        
+        // ========== SAUVEGARDER FAVORIS UTILISATEUR ==========
+        function saveUserFavs() {
+            localStorage.setItem(getUserFavKey(), JSON.stringify(saved));
+        }
+        
+        // Base véhicules française (simule le SIV)
+        var VDB={
+            // Peugeot
+            'AB123CD':{mq:'PEUGEOT',md:'308',cb:'Diesel',cv:'7',an:'2019-03',px:'110 ch',fuelCons:'4.4L/100'},
+            'AA111BB':{mq:'PEUGEOT',md:'208',cb:'Essence',cv:'5',an:'2022-06',px:'100 ch',fuelCons:'5.2L/100'},
+            'AA222CC':{mq:'PEUGEOT',md:'2008',cb:'Diesel',cv:'6',an:'2021-03',px:'100 ch',fuelCons:'4.0L/100'},
+            // Renault
+            'EF456GH':{mq:'RENAULT',md:'Clio V',cb:'Essence',cv:'5',an:'2021-06',px:'100 ch',fuelCons:'5.3L/100'},
+            'AB987CD':{mq:'RENAULT',md:'Captur',cb:'Essence',cv:'6',an:'2022-01',px:'130 ch',fuelCons:'5.8L/100'},
+            'EF111GH':{mq:'RENAULT',md:'Megane',cb:'Diesel',cv:'7',an:'2020-09',px:'115 ch',fuelCons:'4.2L/100'},
+            // Volkswagen
+            'IJ789KL':{mq:'VOLKSWAGEN',md:'Golf 8',cb:'Hybride',cv:'8',an:'2022-01',px:'150 ch',fuelCons:'2.0L/100'},
+            'IJ222KL':{mq:'VOLKSWAGEN',md:'Polo',cb:'Essence',cv:'5',an:'2021-05',px:'95 ch',fuelCons:'5.1L/100'},
+            'IJ333KL':{mq:'VOLKSWAGEN',md:'T-Roc',cb:'Diesel',cv:'8',an:'2022-03',px:'150 ch',fuelCons:'4.8L/100'},
+            // Citroen
+            'MN012OP':{mq:'CITROEN',md:'C3',cb:'Essence',cv:'5',an:'2020-09',px:'83 ch',fuelCons:'5.0L/100'},
+            'MN111OP':{mq:'CITROEN',md:'C4',cb:'Diesel',cv:'6',an:'2021-07',px:'110 ch',fuelCons:'4.1L/100'},
+            'MN222OP':{mq:'CITROEN',md:'C5 Aircross',cb:'Diesel',cv:'8',an:'2022-02',px:'150 ch',fuelCons:'4.5L/100'},
+            // BMW
+            'QR345ST':{mq:'BMW',md:'Série 3',cb:'Diesel',cv:'10',an:'2021-11',px:'190 ch',fuelCons:'4.8L/100'},
+            'QR111ST':{mq:'BMW',md:'Série 1',cb:'Essence',cv:'7',an:'2022-04',px:'140 ch',fuelCons:'6.0L/100'},
+            'QR222ST':{mq:'BMW',md:'X3',cb:'Diesel',cv:'11',an:'2021-08',px:'190 ch',fuelCons:'5.5L/100'},
+            // Audi
+            'UV678WX':{mq:'AUDI',md:'A4',cb:'Diesel',cv:'9',an:'2020-02',px:'163 ch',fuelCons:'4.6L/100'},
+            'UV111WX':{mq:'AUDI',md:'A1',cb:'Essence',cv:'6',an:'2022-01',px:'110 ch',fuelCons:'5.4L/100'},
+            'UV222WX':{mq:'AUDI',md:'Q5',cb:'Diesel',cv:'10',an:'2021-05',px:'163 ch',fuelCons:'5.0L/100'},
+            // Mercedes
+            'YZ901AB':{mq:'MERCEDES',md:'Classe A',cb:'Essence',cv:'9',an:'2022-05',px:'163 ch',fuelCons:'5.8L/100'},
+            'YZ111AB':{mq:'MERCEDES',md:'Classe B',cb:'Diesel',cv:'7',an:'2021-09',px:'116 ch',fuelCons:'4.4L/100'},
+            'YZ222AB':{mq:'MERCEDES',md:'GLC',cb:'Diesel',cv:'11',an:'2022-02',px:'194 ch',fuelCons:'5.5L/100'},
+            // Toyota
+            'CD234EF':{mq:'TOYOTA',md:'Yaris',cb:'Hybride',cv:'5',an:'2021-07',px:'116 ch',fuelCons:'3.8L/100'},
+            'CD111EF':{mq:'TOYOTA',md:'Corolla',cb:'Hybride',cv:'7',an:'2022-03',px:'140 ch',fuelCons:'4.4L/100'},
+            'CD222EF':{mq:'TOYOTA',md:'RAV4',cb:'Hybride',cv:'9',an:'2021-11',px:'218 ch',fuelCons:'5.6L/100'},
+            // Dacia
+            'GH567IJ':{mq:'DACIA',md:'Sandero',cb:'Essence',cv:'4',an:'2023-03',px:'67 ch',fuelCons:'5.4L/100'},
+            'GH111IJ':{mq:'DACIA',md:'Duster',cb:'Essence',cv:'6',an:'2022-07',px:'100 ch',fuelCons:'6.0L/100'},
+            'GH222IJ':{mq:'DACIA',md:'Jogger',cb:'Essence',cv:'6',an:'2023-01',px:'110 ch',fuelCons:'5.8L/100'},
+            // Fiat
+            'KL890MN':{mq:'FIAT',md:'500',cb:'Électrique',cv:'4',an:'2023-01',px:'118 ch',fuelCons:'0L/100'},
+            'KL111MN':{mq:'FIAT',md:'500X',cb:'Essence',cv:'6',an:'2021-04',px:'110 ch',fuelCons:'5.8L/100'},
+            // Ford
+            'FG123HI':{mq:'FORD',md:'Focus',cb:'Diesel',cv:'7',an:'2020-08',px:'120 ch',fuelCons:'4.2L/100'},
+            'FG111HI':{mq:'FORD',md:'Puma',cb:'Essence',cv:'6',an:'2022-05',px:'125 ch',fuelCons:'5.4L/100'},
+            // Hyundai
+            'HY456TU':{mq:'HYUNDAI',md:'Tucson',cb:'Hybride',cv:'8',an:'2022-02',px:'230 ch',fuelCons:'5.6L/100'},
+            'HY111TU':{mq:'HYUNDAI',md:'i20',cb:'Essence',cv:'5',an:'2021-10',px:'100 ch',fuelCons:'5.2L/100'},
+            // Kia
+            'KI789VW':{mq:'KIA',md:'Sportage',cb:'Hybride',cv:'8',an:'2022-06',px:'230 ch',fuelCons:'5.7L/100'},
+            'KI111VW':{mq:'KIA',md:'Ceed',cb:'Diesel',cv:'6',an:'2021-03',px:'115 ch',fuelCons:'4.0L/100'},
+            // Tesla
+            'TS123EL':{mq:'TESLA',md:'Model 3',cb:'Électrique',cv:'4',an:'2022-09',px:'283 ch',fuelCons:'0L/100'},
+            'TS111EL':{mq:'TESLA',md:'Model Y',cb:'Électrique',cv:'5',an:'2023-01',px:'299 ch',fuelCons:'0L/100'}
+        };
+        var MDB={
+            // Yamaha
+            'AB123CD':{mq:'YAMAHA',md:'MT-07',cb:'Essence',cyl:'689cc',an:'2021-03',px:'73 ch',fuelCons:'4.5L/100'},
+            'MB111CD':{mq:'YAMAHA',md:'MT-09',cb:'Essence',cyl:'847cc',an:'2022-01',px:'119 ch',fuelCons:'4.8L/100'},
+            'MB222CD':{mq:'YAMAHA',md:'YZF-R3',cb:'Essence',cyl:'321cc',an:'2021-06',px:'42 ch',fuelCons:'3.2L/100'},
+            'MB333CD':{mq:'YAMAHA',md:'TMAX',cb:'Essence',cyl:'560cc',an:'2022-04',px:'48 ch',fuelCons:'4.8L/100'},
+            // Honda
+            'EF456GH':{mq:'HONDA',md:'CB 650R',cb:'Essence',cyl:'649cc',an:'2020-05',px:'96 ch',fuelCons:'4.5L/100'},
+            'MB444GH':{mq:'HONDA',md:'CBR 650R',cb:'Essence',cyl:'649cc',an:'2021-08',px:'96 ch',fuelCons:'4.5L/100'},
+            'MB555GH':{mq:'HONDA',md:'PCX 125',cb:'Essence',cyl:'125cc',an:'2022-02',px:'12 ch',fuelCons:'2.1L/100'},
+            'MB666GH':{mq:'HONDA',md:'Africa Twin',cb:'Essence',cyl:'1084cc',an:'2022-05',px:'102 ch',fuelCons:'4.8L/100'},
+            // Kawasaki
+            'IJ789KL':{mq:'KAWASAKI',md:'Ninja 650',cb:'Essence',cyl:'649cc',an:'2021-08',px:'68 ch',fuelCons:'4.5L/100'},
+            'MB777KL':{mq:'KAWASAKI',md:'Ninja 400',cb:'Essence',cyl:'399cc',an:'2022-03',px:'45 ch',fuelCons:'3.8L/100'},
+            'MB888KL':{mq:'KAWASAKI',md:'Z900',cb:'Essence',cyl:'948cc',an:'2021-11',px:'125 ch',fuelCons:'5.2L/100'},
+            // BMW Moto
+            'MN012OP':{mq:'BMW',md:'F 900 R',cb:'Essence',cyl:'895cc',an:'2022-02',px:'105 ch',fuelCons:'4.5L/100'},
+            'MB999OP':{mq:'BMW',md:'G 310 GS',cb:'Essence',cyl:'313cc',an:'2021-04',px:'34 ch',fuelCons:'3.2L/100'},
+            'MB000OP':{mq:'BMW',md:'R 1250 GS',cb:'Essence',cyl:'1254cc',an:'2022-06',px:'136 ch',fuelCons:'4.9L/100'},
+            // Suzuki
+            'QR345ST':{mq:'SUZUKI',md:'GSX-S 750',cb:'Essence',cyl:'749cc',an:'2019-11',px:'113 ch',fuelCons:'4.9L/100'},
+            'MB111ST':{mq:'SUZUKI',md:'SV650',cb:'Essence',cyl:'645cc',an:'2021-07',px:'76 ch',fuelCons:'4.2L/100'},
+            'MB222ST':{mq:'SUZUKI',md:'V-Strom 650',cb:'Essence',cyl:'645cc',an:'2022-01',px:'71 ch',fuelCons:'4.3L/100'},
+            // Ducati
+            'DU123CA':{mq:'DUCATI',md:'Monster 821',cb:'Essence',cyl:'821cc',an:'2021-09',px:'109 ch',fuelCons:'5.0L/100'},
+            'DU111CA':{mq:'DUCATI',md:'Panigale V2',cb:'Essence',cyl:'955cc',an:'2022-03',px:'155 ch',fuelCons:'5.5L/100'},
+            // KTM
+            'KT123MT':{mq:'KTM',md:'Duke 790',cb:'Essence',cyl:'799cc',an:'2021-05',px:'105 ch',fuelCons:'4.6L/100'},
+            'KT111MT':{mq:'KTM',md:'Duke 390',cb:'Essence',cyl:'373cc',an:'2022-02',px:'44 ch',fuelCons:'3.4L/100'}
+        };
+        
+        // GARANTIES AUTO/MOTO:
+        // Tous risques: RC + Vol + Incendie + Bris glace + Capital conducteur 500000€ + Assistance 0km
+        // Tiers+: RC + Bris glace + Incendie + Vol + Capital conducteur 500000€ + Assistance 0km
+        // Tiers simple: RC + Capital conducteur 500000€ + Assistance 0km
+        var baseData={
+            auto:{
+                tous:[
+                    {n:"Direct Assurance",base:45,s:78,g:{rc:100,vol:90,inc:95,bris:95,cap:95,ass:100}},
+                    {n:"MAAF",base:52,s:85,g:{rc:100,vol:92,inc:95,bris:90,cap:95,ass:100}},
+                    {n:"GMF",base:55,s:88,g:{rc:100,vol:95,inc:98,bris:95,cap:98,ass:100}},
+                    {n:"Allianz",base:62,s:94,g:{rc:100,vol:98,inc:100,bris:98,cap:100,ass:100}}
+                ],
+                "tiers+":[
+                    {n:"Direct Assurance",base:32,s:75,g:{rc:100,vol:85,inc:90,bris:90,cap:80,ass:100}},
+                    {n:"MAAF",base:38,s:82,g:{rc:100,vol:88,inc:92,bris:95,cap:85,ass:100}},
+                    {n:"GMF",base:42,s:85,g:{rc:100,vol:90,inc:95,bris:95,cap:90,ass:100}}
+                ],
+                tiers:[
+                    {n:"Direct Assurance",base:18,s:60,g:{rc:100,vol:0,inc:0,bris:0,cap:70,ass:100}},
+                    {n:"MAAF",base:22,s:65,g:{rc:100,vol:0,inc:0,bris:0,cap:75,ass:100}},
+                    {n:"GMF",base:25,s:68,g:{rc:100,vol:0,inc:0,bris:0,cap:80,ass:100}}
+                ]
+            },
+            moto:{
+                tous:[
+                    {n:"AMV",base:38,s:88,g:{rc:100,vol:88,inc:92,bris:85,cap:92,ass:100}},
+                    {n:"GMF Moto",base:42,s:92,g:{rc:100,vol:92,inc:95,bris:90,cap:95,ass:100}},
+                    {n:"Allianz Moto",base:48,s:95,g:{rc:100,vol:95,inc:98,bris:95,cap:98,ass:100}}
+                ],
+                "tiers+":[
+                    {n:"AMV",base:22,s:78,g:{rc:100,vol:85,inc:88,bris:82,cap:80,ass:100}},
+                    {n:"GMF Moto",base:26,s:85,g:{rc:100,vol:88,inc:92,bris:88,cap:85,ass:100}}
+                ],
+                tiers:[
+                    {n:"AMV",base:14,s:60,g:{rc:100,vol:0,inc:0,bris:0,cap:70,ass:100}},
+                    {n:"GMF Moto",base:16,s:65,g:{rc:100,vol:0,inc:0,bris:0,cap:75,ass:100}}
+                ]
+            },
+            habitation:{
+                tous:[
+                    {n:"Direct Assurance",base:12,s:75,g:{rc:100,vol:85,inc:90,deg:85,cap:80,ass:85}},
+                    {n:"MAAF",base:15,s:82,g:{rc:100,vol:88,inc:92,deg:88,cap:85,ass:90}},
+                    {n:"Allianz",base:18,s:88,g:{rc:100,vol:92,inc:95,deg:92,cap:90,ass:92}}
+                ],
+                "tiers+":[
+                    {n:"Direct Assurance",base:8,s:70,g:{rc:100,vol:70,inc:75,deg:70,cap:60,ass:75}},
+                    {n:"MAAF",base:10,s:75,g:{rc:100,vol:75,inc:80,deg:75,cap:65,ass:80}}
+                ],
+                tiers:[
+                    {n:"Direct Assurance",base:5,s:60,g:{rc:100,vol:0,inc:0,deg:0,cap:50,ass:60}},
+                    {n:"MAAF",base:6,s:65,g:{rc:100,vol:0,inc:0,deg:0,cap:55,ass:65}}
+                ]
+            },
+            pno:{
+                tous:[
+                    {n:"Solly Azar",base:22,s:90,g:{rc:100,vol:88,inc:92,deg:90,cap:85,ass:85}},
+                    {n:"Allianz PNO",base:25,s:88,g:{rc:100,vol:85,inc:90,deg:88,cap:88,ass:88}},
+                    {n:"AXA PNO",base:28,s:92,g:{rc:100,vol:90,inc:94,deg:92,cap:90,ass:90}}
+                ],
+                "tiers+":[
+                    {n:"Solly Azar",base:14,s:82,g:{rc:100,vol:75,inc:82,deg:78,cap:70,ass:78}},
+                    {n:"Allianz PNO",base:16,s:80,g:{rc:100,vol:72,inc:78,deg:75,cap:68,ass:75}}
+                ],
+                tiers:[
+                    {n:"Solly Azar",base:8,s:70,g:{rc:100,vol:0,inc:0,deg:0,cap:55,ass:65}},
+                    {n:"Allianz PNO",base:10,s:72,g:{rc:100,vol:0,inc:0,deg:0,cap:60,ass:68}}
+                ]
+            }
+        };
+        var garLabels={
+            auto:['RC','Vol','Incendie','Bris glace','Capital 500k€','Assist 0km'],
+            moto:['RC','Vol','Incendie','Bris','Capital 500k€','Assist 0km'],
+            habitation:['RC','Vol','Incendie','Dégât eau','Capital','Assistance'],
+            pno:['RC','Vol','Incendie','Dégât eau','Capital','Assistance']
+        };
+        
+        // Navigation
+        document.getElementById('n1').onclick=function(){go(1)};
+        document.getElementById('n2').onclick=function(){go(2)};
+        document.getElementById('n3').onclick=function(){go(3)};
+        document.getElementById('n5').onclick=function(){go(5);};
+document.getElementById('btnPay').onclick=function(){
+    var plan=document.querySelector('input[name="plan"]:checked').value;
+    var cn=document.getElementById('cardNum').value;
+    var ce=document.getElementById('cardExp').value;
+    var cc=document.getElementById('cardCvc').value;
+    var cna=document.getElementById('cardName').value;
+    if(!cn||cn.length<16){alert('Numéro de carte invalide');return;}
+    if(!ce){alert('Date expiration requise');return;}
+    if(!cc){alert('CVC requis');return;}
+    if(!cna){alert('Nom requis');return;}
+    var cu=JSON.parse(localStorage.getItem('aiaCur')||'{}');
+    if(cu.e){
+        cu.abonnement=plan;
+        cu.abonnementDate=new Date().toISOString();
+        localStorage.setItem('aiaCur',JSON.stringify(cu));
+        var us=JSON.parse(localStorage.getItem('aiaUs')||'[]');
+        var idx=us.findIndex(function(u){return u.e===cu.e;});
+        if(idx>=0){us[idx]=cu;localStorage.setItem('aiaUs',JSON.stringify(us));}
+        alert('🎉 Bienvenue dans AssurIA Premium !');
+        go(1);
+    }else{alert('Veuillez vous connecter');}
+};
+document.getElementById('n4').onclick=function(){go(4);showSaved();};
+        
+        function go(n){
+            document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+            document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('on'));
+            document.getElementById('p'+n).classList.add('on');
+            document.getElementById('n'+n).classList.add('on');
+            if(n==2)showForm();
+        }
+        
+        function sel(el,val){
+            document.querySelectorAll('.type').forEach(e=>e.classList.remove('on'));
+            el.classList.add('on');
+            tp=val;
+        }
+        
+        function selG(el,val){
+            document.querySelectorAll('.gar-opt button').forEach(b=>b.classList.remove('on'));
+            el.classList.add('on');
+            gr=val;
+        }
+        
+        function showForm(){
+            document.querySelectorAll('[id^="form-"]').forEach(f=>f.style.display='none');
+            var f=document.getElementById('form-'+tp);
+            if(f)f.style.display='block';
+            var t={auto:'Auto',moto:'Moto',habitation:'Habitation',pno:'PNO'};
+            document.getElementById('ft').textContent='Assurance '+(t[tp]||'');
+            if(tp==='auto'||tp==='moto'){
+                document.getElementById('calc-info').innerHTML='💡 Le prix est calculé selon votre bonus/malus, ancienneté du permis, âge et puissance du véhicule.';
+                document.getElementById('calc-info').style.display='block';
+            }else if(tp==='habitation'){
+                document.getElementById('calc-info').innerHTML='💡 Le prix est calculé selon l\'adresse (zone tarifaire), type de logement, résidence (principale/secondaire), surface, étage et capital mobilier.';
+                document.getElementById('calc-info').style.display='block';
+                showEtage();
+            }else if(tp==='pno'){
+                document.getElementById('calc-info').innerHTML='💡 Le prix est calculé selon l\'adresse (zone tarifaire), type de bien, surface, année construction et valeur.';
+                document.getElementById('calc-info').style.display='block';
+                showEtageP();
+            }
+        }
+        
+        function togB(m){
+            bm=m;
+            document.getElementById('bauto').className=m=='auto'?'on':'';
+            document.getElementById('bs').className=m=='s'?'on':'';
+            document.getElementById('bm').className=m=='m'?'on':'';
+            document.getElementById('bonus-auto-info').style.display=m=='auto'?'block':'none';
+            document.getElementById('bsl').style.display=m=='s'?'block':'none';
+            document.getElementById('bmn').style.display=m=='m'?'block':'none';
+            document.getElementById('bautoval').style.display=m=='auto'?'block':'none';
+            if(m=='auto')calcBonusAuto();
+        }
+        
+        // Calcul automatique du bonus à partir de la date du permis
+        // Règle: -5% par an sans accident (coefficient * 0.95 chaque année)
+        // Bonus max = 0.50 (atteint après 13 ans)
+        function calcBonusAuto(){
+            var dpVal=document.getElementById('dp').value;
+            if(!dpVal){
+                document.getElementById('bautoval').value='1.00 - Entrez date permis';
+                document.getElementById('bonus-calc-info').textContent='';
+                return 1.00;
+            }
+            
+            var datePermis=new Date(dpVal);
+            var today=new Date();
+            
+            if(datePermis>today){
+                document.getElementById('bautoval').value='❌ Date invalide';
+                document.getElementById('bonus-calc-info').textContent='';
+                return 1.00;
+            }
+            
+            // Calcul du nombre d'années
+            var years=Math.floor((today-datePermis)/(365.25*24*3600*1000));
+            
+            // Calcul du coefficient: chaque année sans accident = *0.95
+            // Math.pow(0.95, years) mais plafonné à 0.50
+            var bonus=1.00;
+            for(var i=0;i<years;i++){
+                bonus=bonus*0.95;
+            }
+            
+            // Bonus maximum = 0.50 (atteint après 13 ans)
+            bonus=Math.max(0.50,Math.round(bonus*100)/100);
+            
+            // Affichage
+            var bonusText=bonus.toFixed(2);
+            if(bonus<=0.50){
+                bonusText+=' - Bonus max ⭐';
+            }else if(bonus<1.00){
+                var yearsToMax=Math.ceil(Math.log(0.50/bonus)/Math.log(0.95));
+                bonusText+=' - Encore '+yearsToMax+' an(s) pour le max';
+            }else{
+                bonusText+=' - Neutre (nouveau permis)';
+            }
+            
+            document.getElementById('bautoval').value=bonusText;
+            document.getElementById('bonus-calc-info').textContent='→ '+years+' an(s) de permis';
+            
+            return bonus;
+        }
+        
+        function togBm(m){
+            bmm=m;
+            document.getElementById('bautom').className=m=='auto'?'on':'';
+            document.getElementById('bsm').className=m=='s'?'on':'';
+            document.getElementById('bmm').className=m=='m'?'on':'';
+            document.getElementById('bonus-auto-info-m').style.display=m=='auto'?'block':'none';
+            document.getElementById('bslm').style.display=m=='s'?'block':'none';
+            document.getElementById('bmnm').style.display=m=='m'?'block':'none';
+            document.getElementById('bautovalm').style.display=m=='auto'?'block':'none';
+            if(m=='auto')calcBonusAutoM();
+        }
+        
+        function calcBonusAutoM(){
+            var dpVal=document.getElementById('dpm').value;
+            if(!dpVal){
+                document.getElementById('bautovalm').value='1.00 - Entrez date permis';
+                document.getElementById('bonus-calc-info-m').textContent='';
+                return 1.00;
+            }
+            
+            var datePermis=new Date(dpVal);
+            var today=new Date();
+            
+            if(datePermis>today){
+                document.getElementById('bautovalm').value='❌ Date invalide';
+                document.getElementById('bonus-calc-info-m').textContent='';
+                return 1.00;
+            }
+            
+            var years=Math.floor((today-datePermis)/(365.25*24*3600*1000));
+            var bonus=1.00;
+            for(var i=0;i<years;i++){
+                bonus=bonus*0.95;
+            }
+            bonus=Math.max(0.50,Math.round(bonus*100)/100);
+            
+            var bonusText=bonus.toFixed(2);
+            if(bonus<=0.50){
+                bonusText+=' - Bonus max ⭐';
+            }else if(bonus<1.00){
+                var yearsToMax=Math.ceil(Math.log(0.50/bonus)/Math.log(0.95));
+                bonusText+=' - Encore '+yearsToMax+' an(s) pour le max';
+            }else{
+                bonusText+=' - Neutre (nouveau permis)';
+            }
+            
+            document.getElementById('bautovalm').value=bonusText;
+            document.getElementById('bonus-calc-info-m').textContent='→ '+years+' an(s) de permis';
+            
+            return bonus;
+        }
+        
+        function toggleManual(){
+            mO=!mO;
+            document.getElementById('manual-auto').classList.toggle('hide',!mO);
+        }
+        
+        function toggleManualM(){
+            mOm=!mOm;
+            document.getElementById('manual-moto').classList.toggle('hide',!mOm);
+        }
+        
+        function toggleCvManual(){
+            var cv=document.getElementById('cv').value;
+            document.getElementById('cvm').style.display=cv==='man'?'block':'none';
+        }
+        
+        // Habitation/PNO functions
+        function showEtage(){
+            var typ=document.getElementById('typ').value;
+            document.getElementById('etage-div').style.display=typ==='Appartement'?'block':'none';
+        }
+        
+        function selResType(btn,val){
+            document.querySelectorAll('#resType button').forEach(b=>b.classList.remove('on'));
+            btn.classList.add('on');
+            resType=val;
+        }
+        
+        function showEtageP(){
+            var typ=document.getElementById('typp').value;
+            document.getElementById('etagep-div').style.display=typ==='Appartement'?'block':'none';
+        }
+        
+        // Adresse data (codes postaux avec zones de risque)
+        var addressDB={
+            '75001':{ville:'Paris 1er',zone:3,dept:'75'},
+            '75002':{ville:'Paris 2ème',zone:3,dept:'75'},
+            '75003':{ville:'Paris 3ème',zone:3,dept:'75'},
+            '75004':{ville:'Paris 4ème',zone:3,dept:'75'},
+            '75005':{ville:'Paris 5ème',zone:3,dept:'75'},
+            '75006':{ville:'Paris 6ème',zone:3,dept:'75'},
+            '75007':{ville:'Paris 7ème',zone:3,dept:'75'},
+            '75008':{ville:'Paris 8ème',zone:3,dept:'75'},
+            '75009':{ville:'Paris 9ème',zone:3,dept:'75'},
+            '75010':{ville:'Paris 10ème',zone:3,dept:'75'},
+            '75011':{ville:'Paris 11ème',zone:3,dept:'75'},
+            '75012':{ville:'Paris 12ème',zone:3,dept:'75'},
+            '75013':{ville:'Paris 13ème',zone:3,dept:'75'},
+            '75014':{ville:'Paris 14ème',zone:3,dept:'75'},
+            '75015':{ville:'Paris 15ème',zone:3,dept:'75'},
+            '75016':{ville:'Paris 16ème',zone:3,dept:'75'},
+            '75017':{ville:'Paris 17ème',zone:3,dept:'75'},
+            '75018':{ville:'Paris 18ème',zone:3,dept:'75'},
+            '75019':{ville:'Paris 19ème',zone:3,dept:'75'},
+            '75020':{ville:'Paris 20ème',zone:3,dept:'75'},
+            '92100':{ville:'Boulogne-Billancourt',zone:3,dept:'92'},
+            '92200':{ville:'Neuilly-sur-Seine',zone:3,dept:'92'},
+            '92300':{ville:'Levallois-Perret',zone:3,dept:'92'},
+            '92400':{ville:'Courbevoie',zone:3,dept:'92'},
+            '92500':{ville:'Rueil-Malmaison',zone:2,dept:'92'},
+            '92600':{ville:'Asnières',zone:2,dept:'92'},
+            '92700':{ville:'Colombes',zone:2,dept:'92'},
+            '92800':{ville:'Puteaux',zone:3,dept:'92'},
+            '93000':{ville:'Saint-Denis',zone:2,dept:'93'},
+            '93100':{ville:'Montreuil',zone:2,dept:'93'},
+            '93200':{ville:'Saint-Denis',zone:2,dept:'93'},
+            '93300':{ville:'Aubervilliers',zone:2,dept:'93'},
+            '93400':{ville:'Saint-Ouen',zone:2,dept:'93'},
+            '93500':{ville:'Pantin',zone:2,dept:'93'},
+            '94000':{ville:'Créteil',zone:2,dept:'94'},
+            '94100':{ville:'Saint-Maur',zone:2,dept:'94'},
+            '94200':{ville:'Ivry',zone:2,dept:'94'},
+            '94300':{ville:'Vincennes',zone:2,dept:'94'},
+            '94400':{ville:'Vitry',zone:2,dept:'94'},
+            '94500':{ville:'Rungis',zone:2,dept:'94'},
+            '95000':{ville:'Cergy',zone:1,dept:'95'},
+            '95100':{ville:'Argenteuil',zone:1,dept:'95'},
+            '95200':{ville:'Sarcelles',zone:1,dept:'95'},
+            '95300':{ville:'Pontoise',zone:1,dept:'95'},
+            '97300':{ville:'Cayenne',zone:4,dept:'973'},
+            '97310':{ville:'Kourou',zone:4,dept:'973'},
+            '97320':{ville:'Saint-Laurent',zone:4,dept:'973'},
+            '97330':{ville:'Rémire-Montjoly',zone:4,dept:'973'},
+            '97354':{ville:'Matoury',zone:4,dept:'973'},
+            '13100':{ville:'Aix-en-Provence',zone:2,dept:'13'},
+            '13001':{ville:'Marseille 1er',zone:3,dept:'13'},
+            '13002':{ville:'Marseille 2ème',zone:3,dept:'13'},
+            '13003':{ville:'Marseille 3ème',zone:3,dept:'13'},
+            '13004':{ville:'Marseille 4ème',zone:3,dept:'13'},
+            '13005':{ville:'Marseille 5ème',zone:3,dept:'13'},
+            '13006':{ville:'Marseille 6ème',zone:3,dept:'13'},
+            '33000':{ville:'Bordeaux',zone:2,dept:'33'},
+            '33100':{ville:'Bordeaux',zone:2,dept:'33'},
+            '33200':{ville:'Bordeaux',zone:2,dept:'33'},
+            '33300':{ville:'Bordeaux',zone:2,dept:'33'},
+            '34000':{ville:'Montpellier',zone:2,dept:'34'},
+            '34100':{ville:'Montpellier',zone:2,dept:'34'},
+            '34070':{ville:'Montpellier',zone:2,dept:'34'},
+            '59000':{ville:'Lille',zone:2,dept:'59'},
+            '59100':{ville:'Roubaix',zone:2,dept:'59'},
+            '59200':{ville:'Tourcoing',zone:2,dept:'59'},
+            '69001':{ville:'Lyon 1er',zone:2,dept:'69'},
+            '69002':{ville:'Lyon 2ème',zone:2,dept:'69'},
+            '69003':{ville:'Lyon 3ème',zone:2,dept:'69'},
+            '69004':{ville:'Lyon 4ème',zone:2,dept:'69'},
+            '69005':{ville:'Lyon 5ème',zone:2,dept:'69'},
+            '69006':{ville:'Lyon 6ème',zone:2,dept:'69'},
+            '69007':{ville:'Lyon 7ème',zone:2,dept:'69'},
+            '69008':{ville:'Lyon 8ème',zone:2,dept:'69'},
+            '69009':{ville:'Lyon 9ème',zone:2,dept:'69'},
+            '31000':{ville:'Toulouse',zone:2,dept:'31'},
+            '31100':{ville:'Toulouse',zone:2,dept:'31'},
+            '31200':{ville:'Toulouse',zone:2,dept:'31'},
+            '31300':{ville:'Toulouse',zone:2,dept:'31'},
+            '31400':{ville:'Toulouse',zone:2,dept:'31'},
+            '31500':{ville:'Toulouse',zone:2,dept:'31'},
+            '44000':{ville:'Nantes',zone:2,dept:'44'},
+            '44100':{ville:'Nantes',zone:2,dept:'44'},
+            '44200':{ville:'Nantes',zone:2,dept:'44'},
+            '44300':{ville:'Nantes',zone:2,dept:'44'},
+            '06000':{ville:'Nice',zone:3,dept:'06'},
+            '06100':{ville:'Nice',zone:3,dept:'06'},
+            '06200':{ville:'Nice',zone:3,dept:'06'},
+            '06300':{ville:'Nice',zone:3,dept:'06'}
+        };
+        
+        function searchAddress(){
+            var adr=document.getElementById('adr').value;
+            var cp=adr.match(/\d{5}/);
+            if(cp){
+                var code=cp[0];
+                var info=addressDB[code];
+                if(info){
+                    document.getElementById('adrres').innerHTML='<div class="vehicle-found"><h4>✓ Adresse identifiée</h4><div class="info"><b>📍 '+info.ville+'</b><br>🏷️ Zone tarifaire: '+info.zone+'<br>🏛️ Département: '+info.dept+'</div></div>';
+                    document.getElementById('adrres').style.display='block';
+                }else{
+                    document.getElementById('adrres').innerHTML='<div class="vehicle-found" style="background:#fff3cd;border-color:#ffc107"><h4>⚠️ Code postal non reconnu</h4><div class="info">Zone par défaut appliquée</div></div>';
+                    document.getElementById('adrres').style.display='block';
+                }
+            }else{
+                document.getElementById('adrres').innerHTML='<div class="vehicle-found" style="background:#fff3cd;border-color:#ffc107"><h4>⚠️ Format incorrect</h4><div class="info">Entrez: numéro, rue, code postal<br>Ex: 123 rue de Paris, 75001</div></div>';
+                document.getElementById('adrres').style.display='block';
+            }
+        }
+        
+        function searchAddressP(){
+            var adr=document.getElementById('adrp').value;
+            var cp=adr.match(/\d{5}/);
+            if(cp){
+                var code=cp[0];
+                var info=addressDB[code];
+                if(info){
+                    document.getElementById('adrresp').innerHTML='<div class="vehicle-found"><h4>✓ Adresse identifiée</h4><div class="info"><b>📍 '+info.ville+'</b><br>🏷️ Zone tarifaire: '+info.zone+'<br>🏛️ Département: '+info.dept+'</div></div>';
+                    document.getElementById('adrresp').style.display='block';
+                }else{
+                    document.getElementById('adrresp').innerHTML='<div class="vehicle-found" style="background:#fff3cd;border-color:#ffc107"><h4>⚠️ Code postal non reconnu</h4><div class="info">Zone par défaut appliquée</div></div>';
+                    document.getElementById('adrresp').style.display='block';
+                }
+            }else{
+                document.getElementById('adrresp').innerHTML='<div class="vehicle-found" style="background:#fff3cd;border-color:#ffc107"><h4>⚠️ Format incorrect</h4><div class="info">Entrez: numéro, rue, code postal<br>Ex: 123 rue de Paris, 75001</div></div>';
+                document.getElementById('adrresp').style.display='block';
+            }
+        }
+        
+        function clr(){
+            document.querySelectorAll('#p2 input').forEach(i=>i.value='');
+            document.querySelectorAll('#p2 select').forEach(s=>s.selectedIndex=0);
+            document.getElementById('vres').style.display='none';
+            document.getElementById('vresm').style.display='none';
+            document.getElementById('manual-auto').classList.add('hide');
+            document.getElementById('manual-moto').classList.add('hide');
+            document.getElementById('cvm').style.display='none';
+            document.getElementById('adrres').style.display='none';
+            document.getElementById('adrresp').style.display='none';
+            document.getElementById('bonus-calc-info').textContent='';
+            document.getElementById('bonus-calc-info-m').textContent='';
+            document.getElementById('bautoval').value='1.00 - Entrez date permis';
+            document.getElementById('bautovalm').value='1.00 - Entrez date permis';
+            mO=false;mOm=false;
+            togB('auto');togBm('auto');
+            alert('✓ Formulaire effacé');
+        }
+        
+        function searchPlate(){
+    var pl=document.getElementById('immat').value.replace(/[^A-Z0-9]/g,'').toUpperCase();
+    if(pl.length<6){alert('❌ Entrez une plaque valide\nFormat: AB-123-CD');return;}
+    document.getElementById('vres').innerHTML='⏳ Recherche SIV en cours...';
+    document.getElementById('vres').style.display='block';
+    
+    // Appel N8N pour recherche SIV
+    searchPlateN8N(pl).then(function(result) {
+        if(result && result.success) {
+            var v = result.vehicle;
+            document.getElementById('vres').innerHTML='<div class="vehicle-found"><h4>✓ Véhicule identifié</h4><div class="info"><b>🚗 '+v.marque+' '+v.modele+'</b><br>⚡ <b>Carburant:</b> '+v.carburant+'<br>🐎 <b>Puissance:</b> '+v.puissance+' CV<br>📅 <b>Mise en circ.:</b> '+v.dateCirculation+'<br>🔢 <b>VIN:</b> '+v.vin+'</div></div>';
+            document.getElementById('dc').value=v.dateCirculation;
+            document.getElementById('cv').value=v.puissance;
+            document.getElementById('mq').value=v.marque;
+            document.getElementById('md').value=v.modele;
+            document.getElementById('cb').value=v.carburant;
+        } else {
+            // Fallback vers base locale
+            var v=VDB[pl];
+            if(v){
+                document.getElementById('vres').innerHTML='<div class="vehicle-found"><h4>✓ Véhicule identifié (base locale)</h4><div class="info"><b>🚗 '+v.mq+' '+v.md+'</b><br>⚡ <b>Carburant:</b> '+v.cb+'<br>🐎 <b>Puissance:</b> '+v.cv+' CV ('+v.px+')<br>⛽ <b>Conso:</b> '+v.fuelCons+'<br>📅 <b>Mise en circ.:</b> '+v.an+'</div></div>';
+                document.getElementById('dc').value=v.an;
+                document.getElementById('cv').value=v.cv;
+                document.getElementById('mq').value=v.mq;
+                document.getElementById('md').value=v.md;
+                document.getElementById('cb').value=v.cb;
+            }else{
+                document.getElementById('vres').innerHTML='<div class="vehicle-found" style="background:#fff3cd;border-color:#ffc107"><h4>⚠️ Plaque non trouvée</h4><div class="info">Cette plaque n\'est pas dans notre base.<br><br>Utilisez le formulaire manuel ci-dessous</div></div>';
+            }
+        }
+    }).catch(function() {
+        // Erreur N8N - fallback local
+        var v=VDB[pl];
+        if(v){
+            document.getElementById('vres').innerHTML='<div class="vehicle-found"><h4>✓ Véhicule identifié (base locale)</h4><div class="info"><b>🚗 '+v.mq+' '+v.md+'</b><br>⚡ <b>Carburant:</b> '+v.cb+'<br>🐎 <b>Puissance:</b> '+v.cv+' CV<br>📅 <b>Mise en circ.:</b> '+v.an+'</div></div>';
+            document.getElementById('dc').value=v.an;
+            document.getElementById('cv').value=v.cv;
+            document.getElementById('mq').value=v.mq;
+            document.getElementById('md').value=v.md;
+            document.getElementById('cb').value=v.cb;
+        }else{
+            document.getElementById('vres').innerHTML='<div class="vehicle-found" style="background:#fff3cd;border-color:#ffc107"><h4>⚠️ Plaque non trouvée</h4><div class="info">Erreur de connexion. Utilisez le formulaire manuel.</div></div>';
+        }
+    });
+}
+        
+        function searchPlateM(){
+    var pl=document.getElementById('immatm').value.replace(/[^A-Z0-9]/g,'').toUpperCase();
+    if(pl.length<6){alert('❌ Entrez une plaque valide');return;}
+    document.getElementById('vresm').innerHTML='⏳ Recherche SIV en cours...';
+    document.getElementById('vresm').style.display='block';
+    
+    // Appel N8N pour recherche SIV Moto
+    searchPlateMotoN8N(pl).then(function(result) {
+        if(result && result.success) {
+            var v = result.vehicle;
+            document.getElementById('vresm').innerHTML='<div class="vehicle-found"><h4>✓ Moto identifiée</h4><div class="info"><b>🏍️ '+v.marque+' '+v.modele+'</b><br>🔧 <b>Cylindrée:</b> '+v.cylindree+' cm³<br>🐎 <b>Puissance:</b> '+v.puissance+'<br>📅 <b>Mise en circ.:</b> '+v.dateCirculation+'</div></div>';
+            document.getElementById('dcm').value=v.dateCirculation;
+            document.getElementById('mqm').value=v.marque;
+            document.getElementById('mdm').value=v.modele;
+        } else {
+            // Fallback vers base locale
+            var v=MDB[pl];
+            if(v){
+                document.getElementById('vresm').innerHTML='<div class="vehicle-found"><h4>✓ Moto identifiée (base locale)</h4><div class="info"><b>🏍️ '+v.mq+' '+v.md+'</b><br>⚡ <b>Carburant:</b> '+v.cb+'<br>🔧 <b>Cylindrée:</b> '+v.cyl+'<br>🐎 <b>Puissance:</b> '+v.px+'<br>⛽ <b>Conso:</b> '+v.fuelCons+'<br>📅 <b>Mise en circ.:</b> '+v.an+'</div></div>';
+                document.getElementById('dcm').value=v.an;
+                document.getElementById('mqm').value=v.mq;
+                document.getElementById('mdm').value=v.md;
+            }else{
+                document.getElementById('vresm').innerHTML='<div class="vehicle-found" style="background:#fff3cd;border-color:#ffc107"><h4>⚠️ Plaque non trouvée</h4><div class="info">Cette plaque n\'est pas dans notre base.<br><br>Utilisez le formulaire manuel ci-dessous</div></div>';
+            }
+        }
+    }).catch(function() {
+        // Erreur N8N - fallback local
+        var v=MDB[pl];
+        if(v){
+            document.getElementById('vresm').innerHTML='<div class="vehicle-found"><h4>✓ Moto identifiée (base locale)</h4><div class="info"><b>🏍️ '+v.mq+' '+v.md+'</b><br>🔧 <b>Cylindrée:</b> '+v.cyl+'<br>📅 <b>Mise en circ.:</b> '+v.an+'</div></div>';
+            document.getElementById('dcm').value=v.an;
+            document.getElementById('mqm').value=v.mq;
+            document.getElementById('mdm').value=v.md;
+        }else{
+            document.getElementById('vresm').innerHTML='<div class="vehicle-found" style="background:#fff3cd;border-color:#ffc107"><h4>⚠️ Plaque non trouvée</h4><div class="info">Erreur de connexion. Utilisez le formulaire manuel.</div></div>';
+        }
+    });
+}
+        
+        function calcPrice(base,bonus,age,power,vehAge){
+            var p=base*bonus;
+            if(age<26)p*=1.25;
+            else if(age>50)p*=0.90;
+            // Pour auto: power = CV, pour moto: power = cylindrée
+            if(tp==='auto'&&power>7)p*=1+(power-7)*0.04;
+            if(tp==='moto'){
+                if(power<=50)p*=0.5;           // 50cc: -50%
+                else if(power<=125)p*=0.7;     // 125cc: -30%
+                else if(power<=500)p*=1.0;     // 300-500cc: base
+                else if(power<=750)p*=1.15;    // 600-750cc: +15%
+                else p*=1.30;                  // 800+: +30%
+            }
+            if(vehAge>5)p*=1+(vehAge-5)*0.02;
+            return Math.round(p);
+        }
+        
+        function calcHabitationPrice(base,adr,type,residence,pieces,surface,etage,annc,alarm,capMobilier,capObjets){
+            var p=base;
+            
+            // Zone tarifaire (1=rural, 2=banlieue, 3=centre, 4=outre-mer)
+            var cp=adr.match(/\d{5}/);
+            var zone=2;
+            if(cp){var info=addressDB[cp[0]];if(info)zone=info.zone;}
+            var zoneMult=[0.85,1.00,1.15,1.30][zone-1];
+            p*=zoneMult;
+            
+            // Type logement
+            if(type==='Maison')p*=1.08;
+            
+            // Résidence principale/secondaire
+            if(residence==='secondaire')p*=1.25;
+            
+            // Pièces (base: 3 pièces)
+            if(pieces>3)p*=1+(pieces-3)*0.06;
+            else if(pieces<3)p*=0.96;
+            
+            // Surface (base: 70m²)
+            if(surface>70)p*=1+(surface-70)*0.003;
+            else if(surface<70)p*=0.97;
+            
+            // Étage (appartement)
+            if(type==='Appartement'){
+                if(etage==0)p*=0.94;        // RDC
+                else if(etage==6)p*=1.06;   // Dernier étage
+            }
+            
+            // Année construction
+            if(annc==='Avant 1970')p*=1.10;
+            else if(annc==='Après 2010')p*=0.94;
+            
+            // Alarme
+            if(alarm==='Oui')p*=0.92;
+            
+            // Capitaux
+            if(capMobilier>15000)p*=1+(capMobilier-15000)*0.00002;
+            if(capObjets>5000)p*=1+(capObjets-5000)*0.00005;
+            
+            return Math.round(p*10)/10;
+        }
+        
+        function calcPNOPrice(base,adr,type,pieces,surface,etage,annc,pool,valeur){
+            var p=base;
+            
+            // Zone tarifaire
+            var cp=adr.match(/\d{5}/);
+            var zone=2;
+            if(cp){var info=addressDB[cp[0]];if(info)zone=info.zone;}
+            var zoneMult=[0.88,1.00,1.12,1.25][zone-1];
+            p*=zoneMult;
+            
+            // Type
+            if(type==='Maison')p*=1.10;
+            
+            // Pièces
+            if(pieces>3)p*=1+(pieces-3)*0.04;
+            
+            // Surface
+            if(surface>80)p*=1+(surface-80)*0.002;
+            
+            // Étage
+            if(type==='Appartement'){
+                if(etage==0)p*=0.95;
+                else if(etage==6)p*=1.05;
+            }
+            
+            // Année construction
+            if(annc==='Avant 1970')p*=1.12;
+            else if(annc==='Après 2010')p*=0.92;
+            
+            // Piscine
+            if(pool==='Oui')p*=1.15;
+            
+            // Valeur bien
+            if(valeur>250000)p*=1+(valeur-250000)*0.000006;
+            
+            return Math.round(p*10)/10;
+        }
+        
+        function getYears(dateStr){
+            if(!dateStr)return 0;
+            var d=new Date(dateStr);
+            if(isNaN(d.getTime()))return 0;
+            return Math.floor((Date.now()-d.getTime())/(365.25*24*3600*1000));
+        }
+        
+// ========== VALIDATION FORMULAIRES ==========
+function validateProductForm() {
+    var errors = [];
+    var isValid = true;
+    
+    // Supprimer les erreurs précédentes
+    document.querySelectorAll('.input-error').forEach(function(el) {
+        el.classList.remove('input-error');
+    });
+    
+    if(tp === 'auto') {
+        // Vérifier immatriculation OU formulaire manuel
+        var immat = document.getElementById('immat').value.trim();
+        var manualVisible = document.getElementById('manual-auto') && !document.getElementById('manual-auto').classList.contains('hide');
+        
+        if(!immat && !manualVisible) {
+            errors.push('Immatriculation requise');
+            document.getElementById('immat').classList.add('input-error');
+            isValid = false;
+        }
+        
+        if(manualVisible) {
+            if(!document.getElementById('mq').value.trim()) {
+                errors.push('Marque requise');
+                document.getElementById('mq').classList.add('input-error');
+                isValid = false;
+            }
+            if(!document.getElementById('md').value.trim()) {
+                errors.push('Modèle requis');
+                document.getElementById('md').classList.add('input-error');
+                isValid = false;
+            }
+            if(!document.getElementById('dc').value) {
+                errors.push('Date de mise en circulation requise');
+                document.getElementById('dc').classList.add('input-error');
+                isValid = false;
+            }
+        }
+        
+        if(!document.getElementById('dp').value) {
+            errors.push('Date du permis requise');
+            document.getElementById('dp').classList.add('input-error');
+            isValid = false;
+        }
+        
+    } else if(tp === 'moto') {
+        var immatm = document.getElementById('immatm').value.trim();
+        var manualVisibleM = document.getElementById('manual-moto') && !document.getElementById('manual-moto').classList.contains('hide');
+        
+        if(!immatm && !manualVisibleM) {
+            errors.push('Immatriculation requise');
+            document.getElementById('immatm').classList.add('input-error');
+            isValid = false;
+        }
+        
+        if(manualVisibleM) {
+            if(!document.getElementById('mqm').value.trim()) {
+                errors.push('Marque requise');
+                document.getElementById('mqm').classList.add('input-error');
+                isValid = false;
+            }
+            if(!document.getElementById('mdm').value.trim()) {
+                errors.push('Modèle requis');
+                document.getElementById('mdm').classList.add('input-error');
+                isValid = false;
+            }
+            if(!document.getElementById('dcm').value) {
+                errors.push('Date de mise en circulation requise');
+                document.getElementById('dcm').classList.add('input-error');
+                isValid = false;
+            }
+        }
+        
+        if(!document.getElementById('dpm').value) {
+            errors.push('Date du permis moto requise');
+            document.getElementById('dpm').classList.add('input-error');
+            isValid = false;
+        }
+        
+    } else if(tp === 'habitation') {
+        if(!document.getElementById('adr').value.trim()) {
+            errors.push('Adresse requise');
+            document.getElementById('adr').classList.add('input-error');
+            isValid = false;
+        }
+        if(!document.getElementById('sf').value || parseInt(document.getElementById('sf').value) <= 0) {
+            errors.push('Surface requise');
+            document.getElementById('sf').classList.add('input-error');
+            isValid = false;
+        }
+        if(!document.getElementById('vl').value || parseInt(document.getElementById('vl').value) <= 0) {
+            errors.push('Capital mobilier requis');
+            document.getElementById('vl').classList.add('input-error');
+            isValid = false;
+        }
+        
+    } else if(tp === 'pno') {
+        if(!document.getElementById('adrp').value.trim()) {
+            errors.push('Adresse requise');
+            document.getElementById('adrp').classList.add('input-error');
+            isValid = false;
+        }
+        if(!document.getElementById('sfp').value || parseInt(document.getElementById('sfp').value) <= 0) {
+            errors.push('Surface requise');
+            document.getElementById('sfp').classList.add('input-error');
+            isValid = false;
+        }
+        if(!document.getElementById('vlp').value || parseInt(document.getElementById('vlp').value) <= 0) {
+            errors.push('Valeur du bien requise');
+            document.getElementById('vlp').classList.add('input-error');
+            isValid = false;
+        }
+        
+    } else {
+        errors.push('Veuillez sélectionner un type d\'assurance');
+        isValid = false;
+    }
+    
+    if(!isValid && errors.length > 0) {
+        alert('❌ Veuillez remplir tous les champs obligatoires:\n\n• ' + errors.join('\n• '));
+    }
+    
+    return isValid;
+}
+
+// Style pour les inputs en erreur
+var errorStyle = document.createElement('style');
+errorStyle.textContent = '.input-error { border: 2px solid #e74c3c !important; background: #ffeaea !important; }';
+document.head.appendChild(errorStyle);
+
+        function comparer(){
+            // VALIDATION AVANT COMPARAISON
+            if(!validateProductForm()) {
+                return;
+            }
+            
+            // Préparer les données pour N8N
+            var devisData = {
+                user: currentUser ? { email: currentUser.e, nom: currentUser.n, prenom: currentUser.p } : null,
+                type: tp,
+                garantie: gr,
+                timestamp: new Date().toISOString()
+            };
+            
+            if(tp==='auto'){
+                devisData.vehicule = {
+                    marque: document.getElementById('mq').value,
+                    modele: document.getElementById('md').value,
+                    carburant: document.getElementById('cb').value,
+                    puissance: document.getElementById('cv').value,
+                    dateCirculation: document.getElementById('dc').value,
+                    immatriculation: document.getElementById('immat').value
+                };
+                devisData.conducteur = {
+                    age: parseInt(document.getElementById('ag').value)||30,
+                    bonus: bm==='auto' ? calcBonusAuto() : (bm==='s' ? parseFloat(document.getElementById('bsl').value) : parseFloat(document.getElementById('bmn').value)||1)
+                };
+            } else if(tp==='moto'){
+                devisData.vehicule = {
+                    marque: document.getElementById('mqm').value,
+                    modele: document.getElementById('mdm').value,
+                    cylindree: parseInt(document.getElementById('cyl').value)||400,
+                    dateCirculation: document.getElementById('dcm').value,
+                    immatriculation: document.getElementById('immatm').value
+                };
+                devisData.conducteur = {
+                    age: parseInt(document.getElementById('agm').value)||30,
+                    bonus: bmm==='auto' ? calcBonusAutoM() : (bmm==='s' ? parseFloat(document.getElementById('bslm').value) : parseFloat(document.getElementById('bmnm').value)||1)
+                };
+            } else if(tp==='habitation'){
+                devisData.logement = {
+                    adresse: document.getElementById('adr').value,
+                    type: document.getElementById('typ').value,
+                    residence: resType,
+                    pieces: parseInt(document.getElementById('pie').value)||3,
+                    surface: parseInt(document.getElementById('sf').value)||70,
+                    etage: parseInt(document.getElementById('eta').value)||2,
+                    anneeConstruction: document.getElementById('annc').value,
+                    alarme: document.getElementById('alarm').value,
+                    capitalMobilier: parseInt(document.getElementById('vl').value)||15000,
+                    capitalObjets: parseInt(document.getElementById('objval').value)||0
+                };
+            } else if(tp==='pno'){
+                devisData.logement = {
+                    adresse: document.getElementById('adrp').value,
+                    type: document.getElementById('typp').value,
+                    pieces: parseInt(document.getElementById('piep').value)||3,
+                    surface: parseInt(document.getElementById('sfp').value)||70,
+                    etage: parseInt(document.getElementById('etap').value)||2,
+                    anneeConstruction: document.getElementById('anncp').value,
+                    piscine: document.getElementById('pool').value,
+                    valeur: parseInt(document.getElementById('vlp').value)||200000
+                };
+            }
+            
+            // Envoyer à N8N pour tracking
+            if(tp==='auto') calcDevisAutoN8N(devisData);
+            else if(tp==='moto') calcDevisMotoN8N(devisData);
+            else if(tp==='habitation') calcDevisHabitationN8N(devisData);
+            else if(tp==='pno') calcDevisPNON8N(devisData);
+            
+            // Calcul local (N8N peut aussi retourner les résultats)
+            var d=baseData[tp]&&baseData[tp][gr]?baseData[tp][gr]:[];
+            var bonus=1,age=30,power=7,vehAge=0;
+            
+            if(tp==='auto'){
+                // Récupération du bonus selon le mode
+                if(bm==='auto'){
+                    bonus=calcBonusAuto();
+                }else if(bm==='s'){
+                    bonus=parseFloat(document.getElementById('bsl').value);
+                }else{
+                    bonus=parseFloat(document.getElementById('bmn').value)||1;
+                }
+                age=parseInt(document.getElementById('ag').value)||30;
+                var cvVal=document.getElementById('cv').value;
+                power=cvVal==='man'?parseInt(document.getElementById('cvm').value)||7:parseInt(cvVal)||7;
+                vehAge=getYears(document.getElementById('dc').value);
+            }else if(tp==='moto'){
+                // Récupération du bonus selon le mode
+                if(bmm==='auto'){
+                    bonus=calcBonusAutoM();
+                }else if(bmm==='s'){
+                    bonus=parseFloat(document.getElementById('bslm').value);
+                }else{
+                    bonus=parseFloat(document.getElementById('bmnm').value)||1;
+                }
+                age=parseInt(document.getElementById('agm').value)||30;
+                power=parseInt(document.getElementById('cyl').value)||400;
+                vehAge=getYears(document.getElementById('dcm').value);
+            }else if(tp==='habitation'){
+                var adr=document.getElementById('adr').value;
+                var typ=document.getElementById('typ').value;
+                var residence=resType;
+                var pieces=parseInt(document.getElementById('pie').value)||3;
+                var surface=parseInt(document.getElementById('sf').value)||70;
+                var etage=parseInt(document.getElementById('eta').value)||2;
+                var annc=document.getElementById('annc').value;
+                var alarm=document.getElementById('alarm').value;
+                var capMobilier=parseInt(document.getElementById('vl').value)||15000;
+                var capObjets=parseInt(document.getElementById('objval').value)||0;
+                
+                results=[];
+                for(var i=0;i<d.length;i++){
+                    var r=d[i];
+                    var p=calcHabitationPrice(r.base,adr,typ,residence,pieces,surface,etage,annc,alarm,capMobilier,capObjets);
+                    results.push({n:r.n,p:p,s:r.s,g:r.g,t:tp});
+                }
+                sortRes('smart');
+                go(3);
+                return;
+            }else if(tp==='pno'){
+                var adr=document.getElementById('adrp').value;
+                var typ=document.getElementById('typp').value;
+                var pieces=parseInt(document.getElementById('piep').value)||3;
+                var surface=parseInt(document.getElementById('sfp').value)||70;
+                var etage=parseInt(document.getElementById('etap').value)||2;
+                var annc=document.getElementById('anncp').value;
+                var pool=document.getElementById('pool').value;
+                var valeur=parseInt(document.getElementById('vlp').value)||200000;
+                
+                results=[];
+                for(var i=0;i<d.length;i++){
+                    var r=d[i];
+                    var p=calcPNOPrice(r.base,adr,typ,pieces,surface,etage,annc,pool,valeur);
+                    results.push({n:r.n,p:p,s:r.s,g:r.g,t:tp});
+                }
+                sortRes('smart');
+                go(3);
+                return;
+            }
+            
+            results=[];
+            for(var i=0;i<d.length;i++){
+                var r=d[i];
+                var p=r.base;
+                if(tp==='auto'||tp==='moto'){
+                    p=calcPrice(r.base,bonus,age,power,vehAge);
+                }
+                results.push({n:r.n,p:p,s:r.s,g:r.g,t:tp});
+            }
+            sortRes('smart');
+            go(3);
+        }
+        
+        function sortRes(by){
+            // Vérifier que results existe
+            if(typeof results === 'undefined' || !results || results.length === 0) {
+                console.log('Pas de résultats à trier');
+                return;
+            }
+            
+            // Reset tabs - désélectionner tous
+            var tabs = document.querySelectorAll('.tab');
+            for(var t=0; t<tabs.length; t++){
+                tabs[t].classList.remove('on');
+            }
+            
+            // Trier selon le critère
+            if(by === 'smart'){
+                results.sort(function(a,b){ return (b.s/b.p) - (a.s/a.p); });
+                document.getElementById('tab1').classList.add('on');
+            } else if(by === 'prix'){
+                results.sort(function(a,b){ return a.p - b.p; });
+                document.getElementById('tab2').classList.add('on');
+            } else if(by === 'score'){
+                results.sort(function(a,b){ return b.s - a.s; });
+                document.getElementById('tab3').classList.add('on');
+            }
+            
+            // Déterminer le type et les labels
+            var currentType = tp || 'auto';
+            var labels = garLabels[currentType] || garLabels.auto;
+            
+            // Construire le HTML des résultats
+            var html = '';
+            
+            // Mapping des clés de garanties
+            var garKeys = {
+                auto: ['rc','vol','inc','bris','cap','ass'],
+                moto: ['rc','vol','inc','bris','cap','ass'],
+                habitation: ['rc','vol','inc','deg','cap','ass'],
+                pno: ['rc','vol','inc','deg','cap','ass']
+            };
+            var keys = garKeys[currentType] || garKeys.auto;
+            
+            for(var i=0; i<results.length; i++){
+                var r = results[i];
+                var badge = i===0 ? '<span class="score score-high">⭐ TOP</span>' : '';
+                var cls = r.s >= 85 ? 'score-high' : 'score-mid';
+                
+                html += '<div class="result"><div class="result-top"><div><b>' + r.n + '</b> ' + badge + '<br><small class="score ' + cls + '">' + r.s + '/100</small></div><div class="result-price">' + r.p + '€</div></div><div class="result-body">';
+                
+                for(var j=0; j<labels.length; j++){
+                    var val = r.g[keys[j]] || 0;
+                    html += '<div style="margin-bottom:3px"><span style="width:60px;display:inline-block">' + labels[j] + '</span><div class="bar"><div class="bar-fill" style="width:' + val + '%"></div></div> <span style="float:right">' + (val===0 ? '—' : val+'%') + '</span></div>';
+                }
+                
+                html += '<button class="btn btn-primary" style="font-size:10px;padding:6px;margin-top:6px" onclick="saveFav(' + i + ')">⭐ Sauvegarder</button> <button class="btn btn-outline" style="font-size:10px;padding:6px;margin-top:6px" onclick="sendDevisEmail(' + i + ')">📧 Email</button></div></div>';
+            }
+            
+            // Mettre à jour l'affichage
+            document.getElementById('res').innerHTML = html;
+            
+            // Mettre à jour la recommandation IA
+            var meilleure = results[0];
+            var totalPrix = 0;
+            for(var x=0; x<results.length; x++) totalPrix += results[x].p;
+            var avgPrice = totalPrix / results.length;
+            
+            var aiHtml = '';
+            aiHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.2)">';
+            aiHtml += '<div><span style="font-size:16px;font-weight:bold">🏆 ' + meilleure.n + '</span></div>';
+            aiHtml += '<div style="text-align:right"><span style="font-size:18px;font-weight:bold;color:#2ecc71">' + meilleure.p + '€</span><small>/mois</small></div>';
+            aiHtml += '</div>';
+            
+            aiHtml += '<div style="display:flex;gap:15px;margin-bottom:10px">';
+            aiHtml += '<div style="flex:1;padding:8px;background:rgba(255,255,255,0.1);border-radius:8px;text-align:center">';
+            aiHtml += '<div style="font-size:11px;opacity:0.8">Score</div>';
+            aiHtml += '<div style="font-size:16px;font-weight:bold">' + meilleure.s + '/100</div>';
+            aiHtml += '</div>';
+            aiHtml += '<div style="flex:1;padding:8px;background:rgba(255,255,255,0.1);border-radius:8px;text-align:center">';
+            aiHtml += '<div style="font-size:11px;opacity:0.8">Classement</div>';
+            aiHtml += '<div style="font-size:16px;font-weight:bold">#1</div>';
+            aiHtml += '</div>';
+            if(meilleure.p < avgPrice) {
+                var economie = Math.round((avgPrice - meilleure.p) * 12);
+                aiHtml += '<div style="flex:1;padding:8px;background:rgba(46,204,113,0.2);border-radius:8px;text-align:center">';
+                aiHtml += '<div style="font-size:11px;opacity:0.8">Économie</div>';
+                aiHtml += '<div style="font-size:16px;font-weight:bold;color:#2ecc71">-' + economie + '€/an</div>';
+                aiHtml += '</div>';
+            }
+            aiHtml += '</div>';
+            
+            aiHtml += '<div style="padding:10px;background:rgba(255,255,255,0.1);border-radius:8px;text-align:center">';
+            if(meilleure.s >= 85) {
+                aiHtml += '✅ <b style="color:#2ecc71">Recommandé</b> - Excellent rapport qualité/prix';
+            } else {
+                aiHtml += '👍 <b>Bon choix</b> - Offre adaptée à vos besoins';
+            }
+            aiHtml += '</div>';
+            
+            document.getElementById('ai-reco-content').innerHTML = aiHtml;
+        }
+        
+        function saveFav(idx){
+            var r=results[idx];
+            var exists=false;
+            loadUserFavs();
+            for(var i=0;i<saved.length;i++){
+                if(saved[i].n===r.n&&saved[i].t===r.t)exists=true;
+            }
+            if(!exists){
+                saved.push(r);
+                saveUserFavs();
+            }
+            alert('✓ Offre sauvegardée !');
+            go(4);
+            showSaved();
+        }
+        
+        function showSaved(){
+            loadUserFavs();
+            var h='';
+            // Mapping des clés de garanties
+            var garKeys = {
+                auto: ['rc','vol','inc','bris','cap','ass'],
+                moto: ['rc','vol','inc','bris','cap','ass'],
+                habitation: ['rc','vol','inc','deg','cap','ass'],
+                pno: ['rc','vol','inc','deg','cap','ass']
+            };
+            
+            if(saved.length===0){
+                h='<p style="text-align:center;color:#999;padding:15px">Aucun favori enregistré</p>';
+            }else{
+                var totalMois=0;
+                for(var i=0;i<saved.length;i++){
+                    var s=saved[i];
+                    totalMois+=s.p;
+                    var lb=garLabels[s.t]||garLabels.auto;
+                    var keys=garKeys[s.t]||garKeys.auto;
+                    var typeLabels={auto:'🚗 Auto',moto:'🏍️ Moto',habitation:'🏠 Habitation',pno:'🏢 PNO'};
+                    h+='<div class="result" style="margin-bottom:10px"><div class="result-top"><div><b>'+s.n+'</b> <span class="score score-high" style="font-size:9px">'+(typeLabels[s.t]||s.t)+'</span><br><small class="score '+(s.s>=85?'score-high':'score-mid')+'">'+s.s+'/100</small></div><div class="result-price">'+s.p+'€/mois</div></div><div class="result-body">';
+                    for(var j=0;j<lb.length;j++){
+                        var v=s.g[keys[j]]||0;
+                        h+='<div style="margin-bottom:3px"><span style="width:60px;display:inline-block">'+lb[j]+'</span><div class="bar"><div class="bar-fill" style="width:'+v+'%"></div></div> <span style="float:right">'+(v===0?'—':v+'%')+'</span></div>';
+                    }
+                    h+='<button class="btn btn-danger" style="font-size:10px;padding:6px;margin-top:6px;width:auto" onclick="delFav('+i+')">🗑️ Supprimer</button></div></div>';
+                }
+                var totalAn=Math.round(totalMois*12*100)/100;
+                h+='<div class="recommend" style="margin-top:15px"><h4 style="font-size:12px;margin-bottom:8px">📊 Total des favoris</h4><div style="display:flex;justify-content:space-around;text-align:center"><div><div style="font-size:22px;font-weight:bold;color:var(--accent)">'+totalMois.toFixed(2)+'€</div><small>Mensuel</small></div><div><div style="font-size:22px;font-weight:bold;color:var(--accent)">'+totalAn.toFixed(2)+'€</div><small>Annuel</small></div></div></div>';
+            }
+            document.getElementById('sl').innerHTML=h;
+        }
+        
+        function delFav(idx){
+            loadUserFavs();
+            saved.splice(idx,1);
+            saveUserFavs();
+            showSaved();
+        }
+        
+        // ========== AGENT IA RECOMMANDATION ==========
+        function genererRecommandationIA(){
+            if(!results || results.length === 0) return '';
+            
+            var meilleure = results[0];
+            var avgPrice = results.reduce((a,b) => a + b.p, 0) / results.length;
+            var typeLabels = {auto:'Auto',moto:'Moto',habitation:'Habitation',pno:'PNO'};
+            
+            var html = '<div style="margin-bottom:10px"><b>📊 Meilleure offre: ' + meilleure.n + '</b></div>';
+            
+            // Points positifs
+            var points = [];
+            if(meilleure.s >= 90) {
+                points.push('✅ Score excellent (' + meilleure.s + '/100)');
+            } else if(meilleure.s >= 80) {
+                points.push('✅ Bon score (' + meilleure.s + '/100)');
+            }
+            
+            if(meilleure.p < avgPrice) {
+                var economie = Math.round((avgPrice - meilleure.p) * 12);
+                points.push('✅ Prix compétitif (' + meilleure.p + '€/mois)');
+                if(economie > 0) points.push('✅ Économie de ' + economie + '€/an vs moyenne');
+            }
+            
+            var g = meilleure.g;
+            if(g.rc >= 90) points.push('✅ Responsabilité civile excellente');
+            if(g.vol >= 80) points.push('✅ Bonne couverture vol');
+            if(g.inc >= 80) points.push('✅ Bonne couverture incendie');
+            
+            // Points à surveiller
+            var pointsASurveiller = [];
+            if(meilleure.p > avgPrice * 1.1) pointsASurveiller.push('⚠️ Prix au-dessus de la moyenne');
+            if(g.vol && g.vol < 70) pointsASurveiller.push('⚠️ Couverture vol limitée');
+            if(g.inc && g.inc < 70) pointsASurveiller.push('⚠️ Couverture incendie limitée');
+            
+            html += '<div style="margin-bottom:8px"><b>Points positifs:</b><br>' + points.join('<br>') + '</div>';
+            if(pointsASurveiller.length > 0) {
+                html += '<div style="margin-bottom:8px"><b>À surveiller:</b><br>' + pointsASurveiller.join('<br>') + '</div>';
+            }
+            
+            // Recommandation
+            if(meilleure.s >= 85 && meilleure.p <= avgPrice) {
+                html += '<div style="margin-top:10px;padding:8px;background:rgba(255,255,255,0.2);border-radius:6px">💡 <b>Recommandé</b> - Excellent rapport qualité/prix pour votre profil ' + (typeLabels[tp] || '') + '</div>';
+            } else {
+                html += '<div style="margin-top:10px;padding:8px;background:rgba(255,255,255,0.2);border-radius:6px">👍 <b>Bon choix</b> - Offre adaptée à vos besoins</div>';
+            }
+            
+            return html;
+        }
+        
+        async function askAI(idx){
+            var r = results[idx];
+            var typeLabels = {auto:'Auto',moto:'Moto',habitation:'Habitation',pno:'PNO'};
+            
+            document.getElementById('ai-result').style.display = 'block';
+            document.getElementById('ai-content').innerHTML = '⏳ Analyse en cours...';
+            
+            // Analyse locale (sans API externe pour éviter CORS)
+            setTimeout(function(){
+                var reco = analyserOffre(r, tp);
+                document.getElementById('ai-content').innerHTML = reco;
+            }, 500);
+        }
+        
+        function analyserOffre(r, type){
+            var points = [];
+            var pointsASurveiller = [];
+            
+            // Analyse du score
+            if(r.s >= 90) {
+                points.push('✅ <b>Score excellent</b> (' + r.s + '/100) - Très bonne couverture');
+            } else if(r.s >= 80) {
+                points.push('✅ <b>Bon score</b> (' + r.s + '/100) - Couverture satisfaisante');
+            } else {
+                points.push('⚠️ <b>Score moyen</b> (' + r.s + '/100) - Vérifiez les garanties');
+            }
+            
+            // Analyse du prix
+            var avgPrice = results.reduce((a,b) => a + b.p, 0) / results.length;
+            if(r.p < avgPrice * 0.9) {
+                points.push('✅ <b>Prix compétitif</b> - ' + r.p + '€/mois (moins cher que la moyenne)');
+            } else if(r.p > avgPrice * 1.1) {
+                pointsASurveiller.push('⚠️ <b>Prix élevé</b> - ' + r.p + '€/mois (au-dessus de la moyenne)');
+            } else {
+                points.push('✅ <b>Prix dans la moyenne</b> - ' + r.p + '€/mois');
+            }
+            
+            // Analyse des garanties
+            var g = r.g;
+            if(g.rc >= 95) points.push('✅ <b>Responsabilité civile excellente</b> (' + g.rc + '%)');
+            if(g.vol >= 85) points.push('✅ <b>Bonne couverture vol</b> (' + g.vol + '%)');
+            if(g.inc >= 85) points.push('✅ <b>Bonne couverture incendie</b> (' + g.inc + '%)');
+            
+            if(g.vol && g.vol < 70) pointsASurveiller.push('⚠️ <b>Couverture vol limitée</b> (' + g.vol + '%)');
+            if(g.inc && g.inc < 70) pointsASurveiller.push('⚠️ <b>Couverture incendie limitée</b> (' + g.inc + '%)');
+            
+            // Recommandation finale
+            var reco = '';
+            if(r.s >= 85 && r.p <= avgPrice) {
+                reco = '💡 <b>Recommandé</b> - Excellent rapport qualité/prix';
+            } else if(r.s >= 80) {
+                reco = '👍 <b>Bon choix</b> - Offre équilibrée';
+            } else {
+                reco = '🔍 <b>À comparer</b> - Vérifiez les garanties importantes pour vous';
+            }
+            
+            // Construire la réponse
+            var html = '<div style="margin-bottom:10px"><b>📊 Analyse de l\'offre ' + r.n + '</b></div>';
+            html += '<div style="margin-bottom:8px"><b>Points positifs:</b><br>' + points.join('<br>') + '</div>';
+            if(pointsASurveiller.length > 0) {
+                html += '<div style="margin-bottom:8px"><b>À surveiller:</b><br>' + pointsASurveiller.join('<br>') + '</div>';
+            }
+            html += '<div style="margin-top:10px;padding:8px;background:rgba(255,255,255,0.2);border-radius:6px">' + reco + '</div>';
+            
+            return html;
+        }
+        
+        // ========== ENVOI DEVIS PAR EMAIL ==========
+        function sendDevisEmail(idx){
+            if(!currentUser){
+                alert('❌ Connectez-vous pour envoyer un devis');
+                return;
+            }
+            
+            var r = results[idx];
+            
+            // Message de confirmation d'envoi en cours
+            alert('⏳ Envoi du devis en cours...\n\n📧 Destination: ' + currentUser.e);
+            
+            // Envoyer via EmailJS directement
+            emailjs.send('service_3ajx8pp', 'template_4o32e25', {
+                to_email: currentUser.e,
+                to_name: currentUser.p,
+                subject: 'Votre devis AssurIA - ' + r.n,
+                message: 'Voici votre devis AssurIA :\n\n📄 Offre : ' + r.n + '\n💰 Prix : ' + r.p + '€/mois\n⭐ Score : ' + r.s + '/100\n\nType : ' + tp + '\n\nMerci de votre confiance !\n\n🛡️ AssurIA - Votre comparateur d\'assurances'
+            }).then(function(){
+                // Notification Telegram
+                sendDevisEmailN8N({
+                    email: currentUser.e,
+                    prenom: currentUser.p,
+                    nom: currentUser.n,
+                    offre: r.n,
+                    prixMensuel: r.p,
+                    score: r.s,
+                    typeProduit: tp
+                });
+                alert('✅ Devis envoyé avec succès !\n\n📧 Email envoyé à: ' + currentUser.e + '\n\n📄 Offre: ' + r.n + '\n💰 Prix: ' + r.p + '€/mois\n\nVérifiez votre boîte de réception (et spams).');
+            }).catch(function(e){
+                console.error('Erreur EmailJS:', e);
+                alert('❌ Erreur lors de l\'envoi de l\'email.\n\nVeuillez réessayer ou contacter le support.\n\nErreur: ' + (e.text || e.message || 'Inconnue'));
+            });
+        }
+    </script>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>
+// ========== EMAILJS ==========
+emailjs.init("PLU-_MRAgk9rtLDjM");
+
+// ========== CONFIGURATION ==========
+var TG_BOT = '8642165909:AAE_tuL3z7nbWUcZewZSWLb_UGo-grohVLk';
+var TG_CHAT = '8497845790';
+var TG_API = 'https://api.telegram.org/bot' + TG_BOT + '/sendMessage';
+var N8N_BASE = 'https://aibailleur-n8n.dqlisb.easypanel.host/webhook/assuria';
+
+// ========== NOTIFICATION TELEGRAM ==========
+async function sendTelegram(text) {
+    try {
+        await fetch(TG_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: TG_CHAT, text: text })
+        });
+        console.log('✅ Telegram envoyé');
+    } catch(e) {
+        console.error('❌ Telegram Error:', e);
+    }
+}
+
+// ========== APPEL N8N ==========
+async function callN8N(endpoint, data) {
+    try {
+        var response = await fetch(N8N_BASE + endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        console.log('✅ N8N appelé:', endpoint);
+        return await response.json();
+    } catch(e) {
+        console.error('❌ N8N Error:', e);
+        return null;
+    }
+}
+
+// ========== SIV AUTO ==========
+async function searchPlateN8N(plate) {
+    sendTelegram('🔍 SIV Auto: ' + plate);
+    callN8N('/siv-auto', { plate: plate });
+    return null; // Fallback local
+}
+
+// ========== SIV MOTO ==========
+async function searchPlateMotoN8N(plate) {
+    sendTelegram('🔍 SIV Moto: ' + plate);
+    callN8N('/siv-moto', { plate: plate });
+    return null;
+}
+
+// ========== DEVIS AUTO ==========
+async function calcDevisAutoN8N(data) {
+    var msg = '🚗 NOUVEAU DEVIS AUTO\n';
+    msg += '━━━━━━━━━━━━━━━\n';
+    msg += '📧 ' + (data.user?.email || '-') + '\n';
+    msg += '👤 ' + (data.user?.prenom || '') + ' ' + (data.user?.nom || '') + '\n';
+    msg += '🚗 ' + (data.vehicule?.marque || '') + ' ' + (data.vehicule?.modele || '') + '\n';
+    msg += '🔢 ' + (data.vehicule?.immatriculation || '-') + '\n';
+    msg += '🛡️ ' + (data.garantie || '-');
+    sendTelegram(msg);
+    callN8N('/devis-auto', data);
+    return null;
+}
+
+// ========== DEVIS MOTO ==========
+async function calcDevisMotoN8N(data) {
+    var msg = '🏍️ NOUVEAU DEVIS MOTO\n';
+    msg += '━━━━━━━━━━━━━━━\n';
+    msg += '📧 ' + (data.user?.email || '-') + '\n';
+    msg += '👤 ' + (data.user?.prenom || '') + ' ' + (data.user?.nom || '') + '\n';
+    msg += '🏍️ ' + (data.vehicule?.marque || '') + ' ' + (data.vehicule?.modele || '');
+    sendTelegram(msg);
+    callN8N('/devis-moto', data);
+    return null;
+}
+
+// ========== DEVIS HABITATION ==========
+async function calcDevisHabitationN8N(data) {
+    var msg = '🏠 NOUVEAU DEVIS HABITATION\n';
+    msg += '━━━━━━━━━━━━━━━\n';
+    msg += '📧 ' + (data.user?.email || '-') + '\n';
+    msg += '👤 ' + (data.user?.prenom || '') + ' ' + (data.user?.nom || '') + '\n';
+    msg += '🏠 ' + (data.logement?.type || '-') + ' - ' + (data.logement?.surface || '-') + 'm²\n';
+    msg += '📍 ' + (data.logement?.residence || '-') + '\n';
+    msg += '📐 ' + (data.logement?.adresse || '-');
+    sendTelegram(msg);
+    callN8N('/devis-habitation', data);
+    return null;
+}
+
+// ========== DEVIS PNO ==========
+async function calcDevisPNON8N(data) {
+    var msg = '🏢 NOUVEAU DEVIS PNO\n';
+    msg += '━━━━━━━━━━━━━━━\n';
+    msg += '📧 ' + (data.user?.email || '-') + '\n';
+    msg += '👤 ' + (data.user?.prenom || '') + ' ' + (data.user?.nom || '');
+    sendTelegram(msg);
+    callN8N('/devis-pno', data);
+    return null;
+}
+
+// ========== SEND EMAIL ==========
+async function sendDevisEmailN8N(data) {
+    var msg = '📧 EMAIL ENVOYÉ\n';
+    msg += '━━━━━━━━━━━━━━━\n';
+    msg += 'À: ' + (data.email || '-') + '\n';
+    msg += 'Offre: ' + (data.offre || '-') + '\n';
+    msg += 'Prix: ' + (data.prixMensuel || '-') + '€/mois';
+    sendTelegram(msg);
+    callN8N('/send-devis', data);
+    return null;
+}
+
+// ========== VARIABLES ==========
+var currentUser = null;
+try {
+    currentUser = JSON.parse(localStorage.getItem('aiaCur') || 'null');
+} catch(e) {
+    currentUser = null;
+}
+
+// ========== AFFICHAGE FORMULAIRES ==========
+function showRegister() {
+    document.getElementById('rF').className = 'aF sh';
+    document.getElementById('lF').className = 'aF';
+    document.getElementById('fF').className = 'aF';
+}
+
+function showLogin() {
+    document.getElementById('lF').className = 'aF sh';
+    document.getElementById('rF').className = 'aF';
+    document.getElementById('fF').className = 'aF';
+    document.getElementById('loginError').style.display = 'none';
+}
+
+function showForgot() {
+    document.getElementById('fF').className = 'aF sh';
+    document.getElementById('rF').className = 'aF';
+    document.getElementById('lF').className = 'aF';
+}
+
+// ========== TOGGLE PASSWORD VISIBILITY ==========
+function togglePass(inputId, btn) {
+    var input = document.getElementById(inputId);
+    if(input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+    } else {
+        input.type = 'password';
+        btn.textContent = '👁️';
+    }
+}
+
+// ========== INSCRIPTION ==========
+function doRegister() {
+    var prenom = document.getElementById('rPrenom').value.trim();
+    var nom = document.getElementById('rNom').value.trim();
+    var email = document.getElementById('rEmail').value.trim();
+    var tel = document.getElementById('rTel').value.trim();
+    var pass = document.getElementById('rPass').value;
+    var pass2 = document.getElementById('rPass2').value;
+    
+    // Validation email avec regex
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    // Validations
+    if(!prenom || !nom || !email || !tel || !pass) {
+        alert('❌ Veuillez remplir tous les champs');
+        return false;
+    }
+    if(!emailRegex.test(email)) {
+        alert('❌ Format d\'email invalide');
+        return false;
+    }
+    if(pass.length < 6) {
+        alert('❌ Le mot de passe doit avoir au moins 6 caractères');
+        return false;
+    }
+    if(pass !== pass2) {
+        alert('❌ Les mots de passe ne correspondent pas');
+        return false;
+    }
+    
+    // Vérifier si email existe déjà
+    var users = [];
+    try {
+        users = JSON.parse(localStorage.getItem('aiaUs') || '[]');
+        if(!Array.isArray(users)) users = [];
+    } catch(e) {
+        users = [];
+    }
+    
+    for(var i = 0; i < users.length; i++) {
+        if(users[i].e.toLowerCase() === email.toLowerCase()) {
+            // Vérifier si période d'essai écoulée (3 jours)
+            if(users[i].te && Date.now() > users[i].te) {
+                alert("⏰ Votre période d'essai de 3 jours est écoulée.\n\n💳 Pour continuer, veuillez payer votre abonnement.\n\nRedirection vers la page Premium...");
+                document.getElementById('authOv').style.display = 'none';
+                setTimeout(function(){go(5);}, 500);
+                return false;
+            }
+            alert('❌ Cet email est déjà utilisé. Veuillez vous connecter.');
+            return false;
+        }
+    }
+    
+    // Créer l'utilisateur
+    var newUser = {
+        p: prenom,
+        n: nom,
+        e: email,
+        t: tel,
+        pw: pass,
+        te: Date.now() + 3*24*60*60*1000  // 3 jours d'essai
+    };
+    
+    users.push(newUser);
+    localStorage.setItem('aiaUs', JSON.stringify(users));
+    localStorage.setItem('aiaCur', JSON.stringify(newUser));
+    currentUser = newUser;
+    
+    // Afficher l'app
+    unlockApp();
+    alert('✅ Bienvenue ' + prenom + ' ! Vous avez 3 jours d\'essai gratuit.');
+    return false;
+}
+
+// ========== CONNEXION ==========
+function doLogin() {
+    // Cacher le message d'erreur précédent
+    document.getElementById('loginError').style.display = 'none';
+    
+    var email = document.getElementById('lEmail').value.trim();
+    var pass = document.getElementById('lPass').value;
+    
+    // Validation email avec regex
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if(!email || !pass) {
+        alert('❌ Veuillez remplir tous les champs');
+        return false;
+    }
+    
+    if(!emailRegex.test(email)) {
+        alert('❌ Format d\'email invalide');
+        return false;
+    }
+    
+    var users = [];
+    try {
+        users = JSON.parse(localStorage.getItem('aiaUs') || '[]');
+        if(!Array.isArray(users)) users = [];
+    } catch(e) {
+        users = [];
+    }
+    
+    // Chercher l'utilisateur par email
+    var found = null;
+    for(var i = 0; i < users.length; i++) {
+        if(users[i].e.toLowerCase() === email.toLowerCase()) {
+            found = users[i];
+            break;
+        }
+    }
+    
+    // Vérifier si l'email existe
+    if(!found) {
+        document.getElementById('loginError').innerHTML = '❌ Aucun compte trouvé avec cet email';
+        document.getElementById('loginError').style.display = 'block';
+        return false;
+    }
+    
+    // Vérifier le mot de passe
+    if(found.pw !== pass) {
+        document.getElementById('loginError').innerHTML = '❌ Mot de passe incorrect';
+        document.getElementById('loginError').style.display = 'block';
+        return false;
+    }
+    
+    // Vérifier si période d'essai écoulée (3 jours)
+    if(found.te && Date.now() > found.te) {
+        alert("⏰ Votre période d'essai de 3 jours est écoulée.\n\n💳 Pour continuer, veuillez payer votre abonnement.\n\nRedirection vers la page Premium...");
+        document.getElementById('authOv').style.display = 'none';
+        setTimeout(function(){go(5);}, 500);
+        return false;
+    }
+    
+    // Connexion réussie
+    localStorage.setItem('aiaCur', JSON.stringify(found));
+    currentUser = found;
+    
+    unlockApp();
+    alert('✅ Bon retour ' + found.p + ' !');
+    return false;
+}
+
+// ========== RÉINITIALISATION MOT DE PASSE ==========
+function doReset() {
+    var email = document.getElementById('fEmail').value.trim();
+    
+    // Validation email avec regex
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if(!email) {
+        alert('❌ Veuillez entrer votre email');
+        return false;
+    }
+    
+    if(!emailRegex.test(email)) {
+        alert('❌ Format d\'email invalide');
+        return false;
+    }
+    
+    var users = [];
+    try {
+        users = JSON.parse(localStorage.getItem('aiaUs') || '[]');
+        if(!Array.isArray(users)) users = [];
+    } catch(e) {
+        users = [];
+    }
+    
+    var found = null;
+    var foundIndex = -1;
+    for(var i = 0; i < users.length; i++) {
+        if(users[i].e.toLowerCase() === email.toLowerCase()) {
+            found = users[i];
+            foundIndex = i;
+            break;
+        }
+    }
+    
+    if(!found) {
+        // Message d'erreur clair
+        alert("❌ Email erroné.\n\nCette adresse email n'est associée à aucun compte.\n\nVérifiez votre saisie ou créez un nouveau compte.");
+        return false;
+    }
+    
+    // Générer token
+    var token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    users[foundIndex].resetToken = token;
+    users[foundIndex].resetExpiry = Date.now() + 3600000; // 1 heure
+    localStorage.setItem('aiaUs', JSON.stringify(users));
+    
+    var resetLink = window.location.href.split('?')[0] + '?reset=' + token + '&email=' + encodeURIComponent(email);
+    
+    // Afficher un message d'envoi en cours
+    var btn = document.querySelector('#fF .bS');
+    var originalText = btn.textContent;
+    btn.textContent = '⏳ Envoi en cours...';
+    btn.disabled = true;
+    
+    // Envoyer email via EmailJS
+    emailjs.send('service_3ajx8pp', 'template_4o32e25', {
+        to_email: email,
+        to_name: found.p || 'Utilisateur',
+        subject: 'Réinitialisation de votre mot de passe - AssurIA',
+        message: 'Bonjour ' + (found.p || 'Utilisateur') + ',\n\nVous avez demandé la réinitialisation de votre mot de passe.\n\n🔗 Cliquez sur ce lien :\n' + resetLink + '\n\n⏰ Ce lien expire dans 1 heure.\n\nSi vous n\'avez pas fait cette demande, ignorez cet email.\n\n🛡️ AssurIA'
+    }).then(function() {
+        btn.textContent = originalText;
+        btn.disabled = false;
+        alert('✅ Email envoyé à ' + email + ' !\n\n📧 Vérifiez votre boîte de réception (et spams).\n\nLe lien expire dans 1 heure.');
+        showLogin();
+    }).catch(function(err) {
+        btn.textContent = originalText;
+        btn.disabled = false;
+        console.error('Erreur EmailJS:', err);
+        alert('❌ Erreur lors de l\'envoi de l\'email.\n\nDétails: ' + (err.text || err.message || 'Erreur inconnue') + '\n\nVeuillez réessayer ou contacter le support.');
+    });
+    
+    return false;
+}
+
+// ========== DÉVERROUILLER L'APP ==========
+function unlockApp() {
+    document.getElementById('authOv').style.display = 'none';
+    document.getElementById('uB').style.display = 'flex';
+    
+    // Afficher le prénom
+    document.getElementById('uAv').textContent = currentUser.p.charAt(0).toUpperCase();
+    document.getElementById('uNm').textContent = currentUser.p + ' ' + currentUser.n.charAt(0) + '.';
+    
+    // Charger les favoris de l'utilisateur
+    loadUserFavs();
+    
+    // Calculer temps restant
+    updateTrialTime();
+    setInterval(updateTrialTime, 60000);
+}
+
+function updateTrialTime() {
+    if(!currentUser) return;
+    var remaining = currentUser.te - Date.now();
+    if(remaining <= 0) {
+        alert('⏰ Votre période d\'essai est terminée');
+        window.location.href = '?deco=1';
+    } else {
+        var days = Math.floor(remaining / (24*60*60*1000));
+        var hours = Math.floor((remaining % (24*60*60*1000)) / (60*60*1000));
+        document.getElementById('uTb').textContent = '🎁 ' + days + 'j ' + hours + 'h';
+    }
+}
+
+// ========== VÉRIFICATION RESET TOKEN ==========
+(function(){
+    var params = new URLSearchParams(window.location.search);
+    var resetToken = params.get('reset');
+    var resetEmail = params.get('email');
+    
+    if(resetToken && resetEmail) {
+        var users = [];
+        try {
+            users = JSON.parse(localStorage.getItem('aiaUs') || '[]');
+        } catch(e) {
+            users = [];
+        }
+        
+        for(var i = 0; i < users.length; i++) {
+            if(users[i].e === resetEmail && users[i].resetToken === resetToken) {
+                if(Date.now() < users[i].resetExpiry) {
+                    var newPass = prompt('Entrez votre nouveau mot de passe (min 6 caractères):');
+                    if(newPass && newPass.length >= 6) {
+                        users[i].pw = newPass;
+                        delete users[i].resetToken;
+                        delete users[i].resetExpiry;
+                        localStorage.setItem('aiaUs', JSON.stringify(users));
+                        alert('✅ Mot de passe modifié ! Vous pouvez vous connecter.');
+                    }
+                } else {
+                    alert('❌ Le lien a expiré');
+                }
+                break;
+            }
+        }
+        window.location.href = window.location.pathname;
+    }
+})();
+
+// ========== BLOQUER ACCÈS RÉSULTATS ==========
+var originalGo = go;
+go = function(pageNum) {
+    // Vérifier si utilisateur connecté pour pages 2, 3, 4 (mais PAS page 5 = Premium)
+    if(pageNum >= 2 && pageNum !== 5 && !currentUser) {
+        alert('⚠️ Veuillez vous inscrire pour accéder à cette fonctionnalité');
+        document.getElementById('authOv').style.display = 'flex';
+        showRegister();
+        return;
+    }
+    originalGo(pageNum);
+};
+
+// ========== INITIALISATION ==========
+if(currentUser) {
+    unlockApp();
+}
+</script>
+</body>
+</html>

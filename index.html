@@ -2170,8 +2170,10 @@ function updateTrialTime() {
             users = [];
         }
         
+        var found = false;
         for(var i = 0; i < users.length; i++) {
-            if(users[i].e === resetEmail && users[i].resetToken === resetToken) {
+            if(users[i].e.toLowerCase() === resetEmail.toLowerCase() && users[i].resetToken === resetToken) {
+                found = true;
                 if(Date.now() < users[i].resetExpiry) {
                     var newPass = prompt('Entrez votre nouveau mot de passe (min 6 caractères):');
                     if(newPass && newPass.length >= 6) {
@@ -2180,13 +2182,22 @@ function updateTrialTime() {
                         delete users[i].resetExpiry;
                         localStorage.setItem('aiaUs', JSON.stringify(users));
                         alert('✅ Mot de passe modifié ! Vous pouvez vous connecter.');
+                    } else if(newPass) {
+                        alert('❌ Le mot de passe doit avoir au moins 6 caractères.');
                     }
                 } else {
-                    alert('❌ Le lien a expiré');
+                    alert('❌ Le lien a expiré. Veuillez demander un nouveau lien de réinitialisation.');
                 }
                 break;
             }
         }
+        
+        if(!found) {
+            alert('❌ Lien invalide. Vérifiez que vous utilisez le bon email ou demandez un nouveau lien.');
+        }
+        
+        // Nettoyer l'URL
+        window.history.replaceState({}, document.title, window.location.pathname);
         window.location.href = window.location.pathname;
     }
 })();

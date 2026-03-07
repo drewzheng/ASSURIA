@@ -2105,12 +2105,12 @@ function doReset() {
     btn.textContent = '⏳ Envoi en cours...';
     btn.disabled = true;
     
-    // Envoyer email via EmailJS
-    emailjs.send('service_3ajx8pp', 'template_4o32e25', {
+    // Envoyer email via EmailJS - Template Reset Password
+    emailjs.send('service_3ajx8pp', 'template_giqh09i', {
         to_email: email,
         to_name: found.p || 'Utilisateur',
-        subject: 'Réinitialisation de votre mot de passe - AssurIA',
-        message: 'Bonjour ' + (found.p || 'Utilisateur') + ',\n\nVous avez demandé la réinitialisation de votre mot de passe.\n\n🔗 Cliquez sur ce lien :\n' + resetLink + '\n\n⏰ Ce lien expire dans 1 heure.\n\nSi vous n\'avez pas fait cette demande, ignorez cet email.\n\n🛡️ AssurIA'
+        reset_link: resetLink,
+        reset_expiry: '1 heure'
     }).then(function() {
         btn.textContent = originalText;
         btn.disabled = false;

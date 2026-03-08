@@ -2127,7 +2127,8 @@ function doReset() {
     users[foundIndex].resetExpiry = Date.now() + 3600000; // 1 heure
     localStorage.setItem('aiaUs', JSON.stringify(users));
     
-    var resetLink = window.location.href.split('?')[0] + '?reset=' + token + '&email=' + encodeURIComponent(email);
+    // URL fixe pour le reset (GitHub Pages)
+    var resetLink = 'https://drewzheng.github.io/ASSURIA/?reset=' + token + '&email=' + encodeURIComponent(email);
     
     // Afficher un message d'envoi en cours
     var btn = document.querySelector('#fF .bS');

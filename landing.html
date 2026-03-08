@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AssurIA - Comparez les Assurances en 2 Minutes</title>
+    <meta name="description" content="AssurIA compare pour vous les meilleures assurances auto, moto, habitation. Économisez jusqu'à 40% sur votre contrat !">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; }
+        
+        /* Header */
+        .header { background: linear-gradient(135deg, #1e3a5f, #2d5a87); color: white; padding: 15px 20px; position: fixed; width: 100%; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5em; font-weight: bold; }
+        .cta-header { background: #00a878; color: white; padding: 10px 25px; border-radius: 25px; text-decoration: none; font-weight: bold; }
+        .cta-header:hover { background: #00c98a; }
+        
+        /* Hero Section */
+        .hero { background: linear-gradient(135deg, #1e3a5f, #2d5a87); color: white; padding: 120px 20px 80px; text-align: center; }
+        .hero h1 { font-size: 2.5em; margin-bottom: 20px; }
+        .hero p { font-size: 1.3em; margin-bottom: 30px; opacity: 0.9; }
+        .cta-main { background: #00a878; color: white; padding: 18px 40px; border-radius: 30px; font-size: 1.2em; font-weight: bold; text-decoration: none; display: inline-block; }
+        .cta-main:hover { background: #00c98a; transform: scale(1.05); }
+        
+        /* Stats */
+        .stats { display: flex; justify-content: center; gap: 40px; margin-top: 40px; flex-wrap: wrap; }
+        .stat { text-align: center; }
+        .stat-number { font-size: 2.5em; font-weight: bold; color: #00a878; }
+        .stat-label { font-size: 0.9em; opacity: 0.8; }
+        
+        /* Features */
+        .features { padding: 80px 20px; background: #f9f9f9; }
+        .features h2 { text-align: center; font-size: 2em; color: #1e3a5f; margin-bottom: 50px; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
+        .feature { background: white; padding: 30px; border-radius: 15px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .feature-icon { font-size: 3em; margin-bottom: 15px; }
+        .feature h3 { color: #1e3a5f; margin-bottom: 10px; }
+        .feature p { color: #666; }
+        
+        /* How it works */
+        .how-it-works { padding: 80px 20px; }
+        .how-it-works h2 { text-align: center; font-size: 2em; color: #1e3a5f; margin-bottom: 50px; }
+        .steps { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; max-width: 1000px; margin: 0 auto; }
+        .step { text-align: center; max-width: 250px; }
+        .step-number { background: #00a878; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; font-weight: bold; margin: 0 auto 15px; }
+        .step h3 { color: #1e3a5f; margin-bottom: 10px; }
+        .step p { color: #666; }
+        
+        /* Testimonials */
+        .testimonials { padding: 80px 20px; background: #f9f9f9; }
+        .testimonials h2 { text-align: center; font-size: 2em; color: #1e3a5f; margin-bottom: 50px; }
+        .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1000px; margin: 0 auto; }
+        .testimonial { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .testimonial-text { font-style: italic; margin-bottom: 15px; }
+        .testimonial-author { font-weight: bold; color: #1e3a5f; }
+        
+        /* CTA Section */
+        .cta-section { background: linear-gradient(135deg, #1e3a5f, #2d5a87); color: white; padding: 80px 20px; text-align: center; }
+        .cta-section h2 { font-size: 2em; margin-bottom: 20px; }
+        .cta-section p { font-size: 1.2em; margin-bottom: 30px; opacity: 0.9; }
+        
+        /* Footer */
+        .footer { background: #1a1a2e; color: white; padding: 40px 20px; text-align: center; }
+        .footer a { color: #00a878; text-decoration: none; }
+        .footer-links { margin-bottom: 20px; }
+        .footer-links a { margin: 0 15px; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8em; }
+            .hero p { font-size: 1em; }
+            .stats { gap: 20px; }
+            .stat-number { font-size: 2em; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">🛡️ AssurIA</div>
+        <a href="https://drewzheng.github.io/ASSURIA/" class="cta-header">Commencer</a>
+    </header>
+    
+    <section class="hero">
+        <h1>Comparez les Assurances en 2 Minutes</h1>
+        <p>Économisez jusqu'à 40% sur votre contrat auto, moto ou habitation</p>
+        <a href="https://drewzheng.github.io/ASSURIA/" class="cta-main">🚀 Comparer Gratuitement</a>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">15+</div>
+                <div class="stat-label">Assureurs comparés</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">-40%</div>
+                <div class="stat-label">Économies moyennes</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">2 min</div>
+                <div class="stat-label">Temps de comparaison</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Gratuit & Sans engagement</div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="features">
+        <h2>Pourquoi choisir AssurIA ?</h2>
+        <div class="features-grid">
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>Rapide</h3>
+                <p>Comparez les offres de 15+ assureurs en moins de 2 minutes</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">💰</div>
+                <h3>Économique</h3>
+                <p>Économisez jusqu'à 40% sur votre contrat d'assurance</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <h3>Personnalisé</h3>
+                <p>Des offres adaptées à votre profil et vos besoins</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <h3>Gratuit</h3>
+                <p>Service 100% gratuit et sans engagement</p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="how-it-works">
+        <h2>Comment ça marche ?</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Créez votre compte</h3>
+                <p>Inscription gratuite en 30 secondes</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Entrez vos informations</h3>
+                <p>Véhicule, situation, besoins...</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Comparez les offres</h3>
+                <p>15+ assureurs analysés pour vous</p>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <h3>Choisissez et économisez</h3>
+                <p>Sélectionnez la meilleure offre</p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="testimonials">
+        <h2>Ce que disent nos utilisateurs</h2>
+        <div class="testimonials-grid">
+            <div class="testimonial">
+                <p class="testimonial-text">"J'ai économisé 350€/an sur mon assurance auto ! Très simple et rapide."</p>
+                <p class="testimonial-author">— Marie D., Lyon</p>
+            </div>
+            <div class="testimonial">
+                <p class="testimonial-text">"Comparaison claire et efficace. Je recommande AssurIA à tous mes proches."</p>
+                <p class="testimonial-author">— Thomas B., Paris</p>
+            </div>
+            <div class="testimonial">
+                <p class="testimonial-text">"Enfin un comparateur simple d'utilisation. Merci AssurIA !"</p>
+                <p class="testimonial-author">— Sophie M., Marseille</p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="cta-section">
+        <h2>Prêt à économiser sur votre assurance ?</h2>
+        <p>Commencez maintenant, c'est gratuit et sans engagement</p>
+        <a href="https://drewzheng.github.io/ASSURIA/" class="cta-main">🚀 Comparer Maintenant</a>
+    </section>
+    
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="mentions_legales.html">Mentions Légales</a>
+            <a href="mentions_legales.html#cgu">CGU</a>
+            <a href="mentions_legales.html#rgpd">Politique de confidentialité</a>
+            <a href="mailto:contact@assuria.fr">Contact</a>
+        </div>
+        <p>© 2026 AssurIA - Tous droits réservés</p>
+    </footer>
+</body>
+</html>

@@ -1790,6 +1790,33 @@ async function callN8N(endpoint, data) {
     }
 }
 
+// ========== NOUVEAU LEAD (inscription) ==========
+async function sendNewLeadN8N(user) {
+    // Envoyer Telegram
+    var msg = '👤 NOUVEAU LEAD\n';
+    msg += '━━━━━━━━━━━━━━━\n';
+    msg += '👤 ' + user.p + ' ' + user.n + '\n';
+    msg += '📧 ' + user.e + '\n';
+    msg += '📱 ' + user.t + '\n';
+    msg += '⏰ ' + new Date().toLocaleString('fr-FR');
+    sendTelegram(msg);
+    
+    // Envoyer à n8n pour Google Sheet / CRM
+    await fetch('https://aibailleur-n8n.dqlisb.easypanel.host/webhook/assuria-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            prenom: user.p,
+            nom: user.n,
+            email: user.e,
+            telephone: user.t,
+            type: 'inscription',
+            date: new Date().toISOString()
+        })
+    });
+    console.log('✅ Lead envoyé à n8n');
+}
+
 // ========== SIV AUTO ==========
 async function searchPlateN8N(plate) {
     sendTelegram('🔍 SIV Auto: ' + plate);
@@ -1974,6 +2001,9 @@ function doRegister() {
     localStorage.setItem('aiaUs', JSON.stringify(users));
     localStorage.setItem('aiaCur', JSON.stringify(newUser));
     currentUser = newUser;
+    
+    // Envoyer le lead à n8n / Telegram
+    sendNewLeadN8N(newUser);
     
     // Afficher l'app
     unlockApp();

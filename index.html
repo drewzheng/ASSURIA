@@ -2201,13 +2201,66 @@ function updateTrialTime() {
                     <div style="font-size:50px;margin-bottom:20px;">🔑</div>
                     <h2 style="color:#1e3a5f;margin-bottom:20px;">Réinitialisation du mot de passe</h2>
                     <p style="color:#666;margin-bottom:20px;">Email: <strong>${resetEmail}</strong></p>
-                    <input type="password" id="newPass" placeholder="Nouveau mot de passe (min 6 caractères)" style="width:100%;padding:15px;border:2px solid #e0e0e0;border-radius:10px;margin-bottom:15px;box-sizing:border-box;font-size:16px;">
-                    <input type="password" id="confirmPass" placeholder="Confirmer le mot de passe" style="width:100%;padding:15px;border:2px solid #e0e0e0;border-radius:10px;margin-bottom:20px;box-sizing:border-box;font-size:16px;">
+                    
+                    <!-- Nouveau mot de passe avec aperçu -->
+                    <div style="position:relative;margin-bottom:15px;">
+                        <input type="password" id="newPass" placeholder="Nouveau mot de passe (min 6 caractères)" style="width:100%;padding:15px 50px 15px 15px;border:2px solid #e0e0e0;border-radius:10px;box-sizing:border-box;font-size:16px;">
+                        <span onclick="togglePass('newPass', this)" style="position:absolute;right:15px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:20px;">👁️</span>
+                    </div>
+                    
+                    <!-- Confirmation avec aperçu -->
+                    <div style="position:relative;margin-bottom:20px;">
+                        <input type="password" id="confirmPass" placeholder="Confirmer le mot de passe" style="width:100%;padding:15px 50px 15px 15px;border:2px solid #e0e0e0;border-radius:10px;box-sizing:border-box;font-size:16px;">
+                        <span onclick="togglePass('confirmPass', this)" style="position:absolute;right:15px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:20px;">👁️</span>
+                    </div>
+                    
                     <button onclick="submitNewPassword()" style="width:100%;padding:15px;background:#00a878;color:white;border:none;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;">VALIDER</button>
                     <p id="resetMsg" style="margin-top:20px;"></p>
+                    
+                    <!-- Debug info -->
+                    <details style="margin-top:20px;text-align:left;">
+                        <summary style="cursor:pointer;color:#666;font-size:12px;">🔍 Debug</summary>
+                        <div style="background:#f5f5f5;padding:10px;border-radius:5px;margin-top:10px;font-size:11px;word-break:break-all;">
+                            <p><strong>Token reçu:</strong> <span id="debugToken">${resetToken}</span></p>
+                            <p><strong>Email reçu:</strong> ${resetEmail}</p>
+                            <p><strong>Token dans localStorage:</strong> <span id="debugStored">Chargement...</span></p>
+                        </div>
+                    </details>
                 </div>
             </div>
         `;
+        
+        // Fonction toggle password
+        window.togglePass = function(inputId, icon) {
+            var input = document.getElementById(inputId);
+            if(input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                icon.textContent = '👁️';
+            }
+        };
+        
+        // Afficher les tokens pour debug
+        setTimeout(function() {
+            var users = [];
+            try {
+                users = JSON.parse(localStorage.getItem('aiaUs') || '[]');
+            } catch(e) {
+                users = [];
+            }
+            
+            var debugInfo = 'Aucun utilisateur trouvé';
+            for(var i = 0; i < users.length; i++) {
+                if(users[i].e.toLowerCase() === resetEmail.toLowerCase()) {
+                    debugInfo = users[i].resetToken || 'Pas de token';
+                    break;
+                }
+            }
+            var debugSpan = document.getElementById('debugStored');
+            if(debugSpan) debugSpan.textContent = debugInfo;
+        }, 100);
         
         // Fonction de soumission
         window.submitNewPassword = function() {
@@ -2233,30 +2286,44 @@ function updateTrialTime() {
                 users = [];
             }
             
+            // Debug: afficher tous les utilisateurs
+            console.log('=== DEBUG RESET ===');
+            console.log('Token reçu:', resetToken);
+            console.log('Email reçu:', resetEmail);
+            console.log('Utilisateurs:', users);
+            
             // Trouver et mettre à jour
             var found = false;
             for(var i = 0; i < users.length; i++) {
-                if(users[i].e.toLowerCase() === resetEmail.toLowerCase() && users[i].resetToken === resetToken) {
-                    if(Date.now() < users[i].resetExpiry) {
-                        users[i].pw = newPass;
-                        delete users[i].resetToken;
-                        delete users[i].resetExpiry;
-                        localStorage.setItem('aiaUs', JSON.stringify(users));
-                        found = true;
-                        msg.innerHTML = '<span style="color:green;">✅ Mot de passe modifié ! Redirection...</span>';
-                        setTimeout(function() {
-                            window.location.href = 'https://drewzheng.github.io/ASSURIA/';
-                        }, 2000);
-                        return;
-                    } else {
-                        msg.innerHTML = '<span style="color:red;">❌ Le lien a expiré.</span>';
-                        return;
+                console.log('User ' + i + ':', users[i].e, users[i].resetToken);
+                if(users[i].e.toLowerCase() === resetEmail.toLowerCase()) {
+                    console.log('Email trouvé!');
+                    console.log('Token stored:', users[i].resetToken);
+                    console.log('Token reçu:', resetToken);
+                    console.log('Match:', users[i].resetToken === resetToken);
+                    
+                    if(users[i].resetToken === resetToken) {
+                        if(Date.now() < users[i].resetExpiry) {
+                            users[i].pw = newPass;
+                            delete users[i].resetToken;
+                            delete users[i].resetExpiry;
+                            localStorage.setItem('aiaUs', JSON.stringify(users));
+                            found = true;
+                            msg.innerHTML = '<span style="color:green;">✅ Mot de passe modifié ! Redirection...</span>';
+                            setTimeout(function() {
+                                window.location.href = 'https://drewzheng.github.io/ASSURIA/';
+                            }, 2000);
+                            return;
+                        } else {
+                            msg.innerHTML = '<span style="color:red;">❌ Le lien a expiré.</span>';
+                            return;
+                        }
                     }
                 }
             }
             
             if(!found) {
-                msg.innerHTML = '<span style="color:red;">❌ Lien invalide.</span>';
+                msg.innerHTML = '<span style="color:red;">❌ Lien invalide. Vérifiez que vous utilisez le même navigateur et le même email.</span>';
             }
         };
     }

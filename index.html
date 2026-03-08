@@ -2139,11 +2139,17 @@ function doReset() {
     console.log('Vérification localStorage:', verifyUsers[foundIndex]);
     console.log('Token sauvegardé:', verifyUsers[foundIndex].resetToken);
     
+    // CONFIRMATION: Vérifier que le token est bien sauvegardé
+    if(!verifyUsers[foundIndex].resetToken) {
+        alert('❌ ERREUR: Le token n\'a pas été sauvegardé correctement!');
+        return false;
+    }
+    
     // URL fixe pour le reset (GitHub Pages)
     var resetLink = 'https://drewzheng.github.io/ASSURIA/?reset=' + token + '&email=' + encodeURIComponent(email);
     
     // Alerte de confirmation avec le token pour debug
-    alert('✅ Token généré pour ' + email + '\n\nToken: ' + token + '\n\n(Ouvrez la console pour voir les détails)');
+    alert('✅ Token généré et sauvegardé!\n\nEmail: ' + email + '\nToken: ' + token + '\n\nMaintenant, ouvrez la console (F12) et cliquez sur "🔍 Debug" dans la page de reset pour vérifier.');
     
     // Afficher un message d'envoi en cours
     var btn = document.querySelector('#fF .bS');

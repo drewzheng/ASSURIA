@@ -2239,6 +2239,8 @@ function updateTrialTime() {
                             <p><strong>Token reçu:</strong> <span id="debugToken">${resetToken}</span></p>
                             <p><strong>Email reçu:</strong> ${resetEmail}</p>
                             <p><strong>Token dans localStorage:</strong> <span id="debugStored">Chargement...</span></p>
+                            <hr style="margin:10px 0;border-color:#ddd;">
+                            <div id="debugAllUsers"></div>
                         </div>
                     </details>
                 </div>
@@ -2267,14 +2269,35 @@ function updateTrialTime() {
             }
             
             var debugInfo = 'Aucun utilisateur trouvé';
+            var userExists = false;
             for(var i = 0; i < users.length; i++) {
                 if(users[i].e.toLowerCase() === resetEmail.toLowerCase()) {
+                    userExists = true;
                     debugInfo = users[i].resetToken || 'Pas de token';
                     break;
                 }
             }
+            
             var debugSpan = document.getElementById('debugStored');
-            if(debugSpan) debugSpan.textContent = debugInfo;
+            if(debugSpan) {
+                if(!userExists) {
+                    debugSpan.innerHTML = '<span style="color:red;">❌ UTILISATEUR NON TROUVÉ dans localStorage!</span><br><br>Comptes dans localStorage: ' + users.length;
+                } else {
+                    debugSpan.textContent = debugInfo;
+                }
+            }
+            
+            // Afficher TOUS les utilisateurs
+            var debugDiv = document.getElementById('debugAllUsers');
+            if(debugDiv) {
+                debugDiv.innerHTML = '<strong>Tous les utilisateurs dans localStorage:</strong><br>';
+                for(var i = 0; i < users.length; i++) {
+                    debugDiv.innerHTML += (i+1) + '. ' + users[i].e + ' (token: ' + (users[i].resetToken || 'aucun') + ')<br>';
+                }
+                if(users.length === 0) {
+                    debugDiv.innerHTML += '<span style="color:red;">AUCUN UTILISATEUR!</span>';
+                }
+            }
         }, 100);
         
         // Fonction de soumission

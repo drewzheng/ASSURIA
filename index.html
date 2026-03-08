@@ -2123,39 +2123,37 @@ function doReset() {
     
     // Générer token
     var token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    var expiry = Date.now() + 3600000; // 1 heure
+    
+    // Sauvegarder dans localStorage
     users[foundIndex].resetToken = token;
-    users[foundIndex].resetExpiry = Date.now() + 3600000; // 1 heure
-    
-    // DEBUG: Afficher avant sauvegarde
-    console.log('=== RESET PASSWORD DEBUG ===');
-    console.log('Email:', email);
-    console.log('Token généré:', token);
-    console.log('User avant sauvegarde:', JSON.stringify(users[foundIndex]));
-    
+    users[foundIndex].resetExpiry = expiry;
     localStorage.setItem('aiaUs', JSON.stringify(users));
-    
-    // DEBUG: Vérifier après sauvegarde
-    var verifyUsers = JSON.parse(localStorage.getItem('aiaUs') || '[]');
-    console.log('Vérification localStorage:', verifyUsers[foundIndex]);
-    console.log('Token sauvegardé:', verifyUsers[foundIndex].resetToken);
-    
-    // CONFIRMATION: Vérifier que le token est bien sauvegardé
-    if(!verifyUsers[foundIndex].resetToken) {
-        alert('❌ ERREUR: Le token n\'a pas été sauvegardé correctement!');
-        return false;
-    }
     
     // URL fixe pour le reset (GitHub Pages)
     var resetLink = 'https://drewzheng.github.io/ASSURIA/?reset=' + token + '&email=' + encodeURIComponent(email);
-    
-    // Alerte de confirmation avec le token pour debug
-    alert('✅ Token généré et sauvegardé!\n\nEmail: ' + email + '\nToken: ' + token + '\n\nMaintenant, ouvrez la console (F12) et cliquez sur "🔍 Debug" dans la page de reset pour vérifier.');
     
     // Afficher un message d'envoi en cours
     var btn = document.querySelector('#fF .bS');
     var originalText = btn.textContent;
     btn.textContent = '⏳ Envoi en cours...';
     btn.disabled = true;
+    
+    // Sauvegarder le token sur Google Sheet via n8n
+    fetch('https://aibailleur-n8n.dqlisb.easypanel.host/webhook/assuria-lead', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            type: 'reset_token',
+            email: email,
+            token: token,
+            expiry: expiry,
+            prenom: found.p || 'Utilisateur',
+            nom: found.n || ''
+        })
+    }).catch(function(e) {
+        console.error('Erreur sauvegarde token:', e);
+    });
     
     // Envoyer email via EmailJS - Template Reset Password
     emailjs.send('service_3ajx8pp', 'template_giqh09i', {
@@ -2322,7 +2320,9 @@ function updateTrialTime() {
                 return;
             }
             
-            // Charger les utilisateurs
+            msg.innerHTML = '⏳ Vérification en cours...';
+            
+            // Charger les utilisateurs depuis localStorage
             var users = [];
             try {
                 users = JSON.parse(localStorage.getItem('aiaUs') || '[]');
@@ -2330,45 +2330,29 @@ function updateTrialTime() {
                 users = [];
             }
             
-            // Debug: afficher tous les utilisateurs
-            console.log('=== DEBUG RESET ===');
-            console.log('Token reçu:', resetToken);
-            console.log('Email reçu:', resetEmail);
-            console.log('Utilisateurs:', users);
-            
-            // Trouver et mettre à jour
+            // Vérifier dans localStorage d'abord
             var found = false;
             for(var i = 0; i < users.length; i++) {
-                console.log('User ' + i + ':', users[i].e, users[i].resetToken);
-                if(users[i].e.toLowerCase() === resetEmail.toLowerCase()) {
-                    console.log('Email trouvé!');
-                    console.log('Token stored:', users[i].resetToken);
-                    console.log('Token reçu:', resetToken);
-                    console.log('Match:', users[i].resetToken === resetToken);
-                    
-                    if(users[i].resetToken === resetToken) {
-                        if(Date.now() < users[i].resetExpiry) {
-                            users[i].pw = newPass;
-                            delete users[i].resetToken;
-                            delete users[i].resetExpiry;
-                            localStorage.setItem('aiaUs', JSON.stringify(users));
-                            found = true;
-                            msg.innerHTML = '<span style="color:green;">✅ Mot de passe modifié ! Redirection...</span>';
-                            setTimeout(function() {
-                                window.location.href = 'https://drewzheng.github.io/ASSURIA/';
-                            }, 2000);
-                            return;
-                        } else {
-                            msg.innerHTML = '<span style="color:red;">❌ Le lien a expiré.</span>';
-                            return;
-                        }
+                if(users[i].e.toLowerCase() === resetEmail.toLowerCase() && users[i].resetToken === resetToken) {
+                    if(Date.now() < users[i].resetExpiry) {
+                        users[i].pw = newPass;
+                        delete users[i].resetToken;
+                        delete users[i].resetExpiry;
+                        localStorage.setItem('aiaUs', JSON.stringify(users));
+                        found = true;
+                        msg.innerHTML = '<span style="color:green;">✅ Mot de passe modifié ! Redirection...</span>';
+                        setTimeout(function() {
+                            window.location.href = 'https://drewzheng.github.io/ASSURIA/';
+                        }, 2000);
+                        return;
                     }
                 }
             }
             
-            if(!found) {
-                msg.innerHTML = '<span style="color:red;">❌ Lien invalide. Vérifiez que vous utilisez le même navigateur et le même email.</span>';
-            }
+            // Si pas trouvé dans localStorage, essayer Google Sheet
+            // Note: Cette partie nécessiterait une API externe pour vérifier le token
+            // Pour l'instant, on affiche un message d'erreur
+            msg.innerHTML = '<span style="color:red;">❌ Lien invalide ou expiré.<br><br>💡 Si vous avez demandé le reset sur un autre navigateur, utilisez le même navigateur pour cliquer sur le lien.</span>';
         };
     }
 })();

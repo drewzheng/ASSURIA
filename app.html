@@ -1975,8 +1975,8 @@ function doRegister() {
     
     for(var i = 0; i < users.length; i++) {
         if(users[i].e.toLowerCase() === email.toLowerCase()) {
-            // Vérifier si période d'essai écoulée (3 jours)
-            if(users[i].te && Date.now() > users[i].te) {
+            // Vérifier si période d'essai écoulée (3 jours) MAIS abonnement actif
+            if(users[i].te && Date.now() > users[i].te && !users[i].abonnement) {
                 alert("⏰ Votre période d'essai de 3 jours est écoulée.\n\n💳 Pour continuer, veuillez payer votre abonnement.\n\nRedirection vers la page Premium...");
                 document.getElementById('authOv').style.display = 'none';
                 setTimeout(function(){go(5);}, 500);
@@ -2065,8 +2065,8 @@ function doLogin() {
         return false;
     }
     
-    // Vérifier si période d'essai écoulée (3 jours)
-    if(found.te && Date.now() > found.te) {
+    // Vérifier si période d'essai écoulée (3 jours) MAIS abonnement actif
+    if(found.te && Date.now() > found.te && !found.abonnement) {
         alert("⏰ Votre période d'essai de 3 jours est écoulée.\n\n💳 Pour continuer, veuillez payer votre abonnement.\n\nRedirection vers la page Premium...");
         document.getElementById('authOv').style.display = 'none';
         setTimeout(function(){go(5);}, 500);

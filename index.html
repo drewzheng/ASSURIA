@@ -2378,7 +2378,7 @@ function updateTrialTime() {
 var originalGo = go;
 go = function(pageNum) {
     // Vérifier si utilisateur connecté pour pages 2, 3, 4 (mais PAS page 5 = Premium)
-    if(pageNum >= 2 && pageNum !== 5 && !currentUser) {
+    if(pageNum >= 2 && !currentUser) {
         alert('⚠️ Veuillez vous inscrire pour accéder à cette fonctionnalité');
         document.getElementById('authOv').style.display = 'flex';
         showRegister();

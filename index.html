@@ -2011,6 +2011,8 @@ function doRegister() {
     return false;
 }
 
+const ASSURIA_API = "https://script.google.com/macros/s/AKfycbwmKBjudgUoCS2Y1sW2-OzNgjLXNA0nl_txKQF8zQICGl_CoA3oluuqrIbgsyFCF3IO_A/exec";
+
 // ========== CONNEXION ==========
 function doLogin() {
     // Cacher le message d'erreur précédent
@@ -2097,38 +2099,9 @@ function doReset() {
         return false;
     }
     
-    var users = [];
-    try {
-        users = JSON.parse(localStorage.getItem('aiaUs') || '[]');
-        if(!Array.isArray(users)) users = [];
-    } catch(e) {
-        users = [];
-    }
-    
-    var found = null;
-    var foundIndex = -1;
-    for(var i = 0; i < users.length; i++) {
-        if(users[i].e.toLowerCase() === email.toLowerCase()) {
-            found = users[i];
-            foundIndex = i;
-            break;
-        }
-    }
-    
-    if(!found) {
-        // Message d'erreur clair
-        alert("❌ Email erroné.\n\nCette adresse email n'est associée à aucun compte.\n\nVérifiez votre saisie ou créez un nouveau compte.");
-        return false;
-    }
-    
     // Générer token
     var token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     var expiry = Date.now() + 3600000; // 1 heure
-    
-    // Sauvegarder dans localStorage
-    users[foundIndex].resetToken = token;
-    users[foundIndex].resetExpiry = expiry;
-    localStorage.setItem('aiaUs', JSON.stringify(users));
     
     // URL fixe pour le reset (GitHub Pages)
     var resetLink = 'https://drewzheng.github.io/ASSURIA/?reset=' + token + '&email=' + encodeURIComponent(email);
@@ -2139,26 +2112,20 @@ function doReset() {
     btn.textContent = '⏳ Envoi en cours...';
     btn.disabled = true;
     
-    // Sauvegarder le token sur Google Sheet via n8n
-    fetch('https://aibailleur-n8n.dqlisb.easypanel.host/webhook/assuria-lead', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            type: 'reset_token',
-            email: email,
-            token: token,
-            expiry: expiry,
-            prenom: found.p || 'Utilisateur',
-            nom: found.n || ''
+    // Sauvegarder le token sur Google Sheet via l'API
+    fetch(ASSURIA_API + '?action=saveToken&email=' + encodeURIComponent(email) + '&token=' + token + '&expiry=' + expiry)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            console.log('Token sauvegardé:', data);
         })
-    }).catch(function(e) {
-        console.error('Erreur sauvegarde token:', e);
-    });
+        .catch(function(e) {
+            console.error('Erreur sauvegarde token:', e);
+        });
     
     // Envoyer email via EmailJS - Template Reset Password
     emailjs.send('service_3ajx8pp', 'template_giqh09i', {
         to_email: email,
-        to_name: found.p || 'Utilisateur',
+        to_name: 'Utilisateur',
         reset_link: resetLink,
         reset_expiry: '1 heure'
     }).then(function() {
@@ -2350,59 +2317,59 @@ function updateTrialTime() {
             }
             
             // Si pas trouvé dans localStorage, vérifier dans Google Sheet via webhook
-            msg.innerHTML = '⏳ Vérification dans la base de données...';
+            msg.innerHTML = '⏳ Vérification du token...';
             
-            // Utiliser le webhook existant pour récupérer les tokens
-            // Note: On utilise une requête GET avec JSONP pour contourner CORS
-            fetch('https://aibailleur-n8n.dqlisb.easypanel.host/webhook/assuria-lead', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    action: 'verify_token',
-                    email: resetEmail,
-                    token: resetToken
-                })
-            }).then(function(response) {
-                return response.json();
-            }).then(function(data) {
-                // Si le token est valide côté serveur, mettre à jour le mot de passe
-                // Pour l'instant, on met à jour le localStorage
-                if(data.success || data.valid) {
-                    // Trouver l'utilisateur dans localStorage
-                    for(var i = 0; i < users.length; i++) {
-                        if(users[i].e.toLowerCase() === resetEmail.toLowerCase()) {
-                            users[i].pw = newPass;
-                            delete users[i].resetToken;
-                            delete users[i].resetExpiry;
-                            localStorage.setItem('aiaUs', JSON.stringify(users));
-                            msg.innerHTML = '<span style="color:green;">✅ Mot de passe modifié ! Redirection...</span>';
-                            setTimeout(function() {
-                                window.location.href = 'https://drewzheng.github.io/ASSURIA/';
-                            }, 2000);
-                            return;
+            // Vérifier le token via l'API Google Sheet
+            fetch(ASSURIA_API + '?action=verifyToken&email=' + encodeURIComponent(resetEmail) + '&token=' + resetToken)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if(data.valid) {
+                        // Token valide - mettre à jour le mot de passe dans localStorage
+                        var users = [];
+                        try {
+                            users = JSON.parse(localStorage.getItem('aiaUs') || '[]');
+                        } catch(e) {
+                            users = [];
                         }
+                        
+                        // Trouver l'utilisateur
+                        var found = false;
+                        for(var i = 0; i < users.length; i++) {
+                            if(users[i].e.toLowerCase() === resetEmail.toLowerCase()) {
+                                users[i].pw = newPass;
+                                delete users[i].resetToken;
+                                delete users[i].resetExpiry;
+                                localStorage.setItem('aiaUs', JSON.stringify(users));
+                                found = true;
+                                break;
+                            }
+                        }
+                        
+                        // Si pas dans localStorage, créer
+                        if(!found) {
+                            var newUser = {
+                                p: 'Utilisateur',
+                                n: '',
+                                e: resetEmail,
+                                pw: newPass,
+                                te: Date.now() + 3*24*60*60*1000
+                            };
+                            users.push(newUser);
+                            localStorage.setItem('aiaUs', JSON.stringify(users));
+                        }
+                        
+                        msg.innerHTML = '<span style="color:green;">✅ Mot de passe modifié ! Redirection...</span>';
+                        setTimeout(function() {
+                            window.location.href = 'https://drewzheng.github.io/ASSURIA/';
+                        }, 2000);
+                    } else {
+                        msg.innerHTML = '<span style="color:red;">❌ ' + (data.message || 'Lien invalide ou expiré') + '</span>';
                     }
-                    // Si utilisateur pas dans localStorage, le créer
-                    var newUser = {
-                        p: 'Utilisateur',
-                        n: '',
-                        e: resetEmail,
-                        pw: newPass,
-                        te: Date.now() + 3*24*60*60*1000
-                    };
-                    users.push(newUser);
-                    localStorage.setItem('aiaUs', JSON.stringify(users));
-                    msg.innerHTML = '<span style="color:green;">✅ Mot de passe modifié ! Redirection...</span>';
-                    setTimeout(function() {
-                        window.location.href = 'https://drewzheng.github.io/ASSURIA/';
-                    }, 2000);
-                } else {
-                    msg.innerHTML = '<span style="color:red;">❌ Lien invalide ou expiré.</span>';
-                }
-            }).catch(function(error) {
-                console.error('Erreur:', error);
-                msg.innerHTML = '<span style="color:red;">❌ Erreur de connexion. Réessayez.</span>';
-            });
+                })
+                .catch(function(error) {
+                    console.error('Erreur:', error);
+                    msg.innerHTML = '<span style="color:red;">❌ Erreur de connexion. Réessayez.</span>';
+                });
         };
     }
 })();

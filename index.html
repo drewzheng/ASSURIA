@@ -2125,10 +2125,25 @@ function doReset() {
     var token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     users[foundIndex].resetToken = token;
     users[foundIndex].resetExpiry = Date.now() + 3600000; // 1 heure
+    
+    // DEBUG: Afficher avant sauvegarde
+    console.log('=== RESET PASSWORD DEBUG ===');
+    console.log('Email:', email);
+    console.log('Token généré:', token);
+    console.log('User avant sauvegarde:', JSON.stringify(users[foundIndex]));
+    
     localStorage.setItem('aiaUs', JSON.stringify(users));
+    
+    // DEBUG: Vérifier après sauvegarde
+    var verifyUsers = JSON.parse(localStorage.getItem('aiaUs') || '[]');
+    console.log('Vérification localStorage:', verifyUsers[foundIndex]);
+    console.log('Token sauvegardé:', verifyUsers[foundIndex].resetToken);
     
     // URL fixe pour le reset (GitHub Pages)
     var resetLink = 'https://drewzheng.github.io/ASSURIA/?reset=' + token + '&email=' + encodeURIComponent(email);
+    
+    // Alerte de confirmation avec le token pour debug
+    alert('✅ Token généré pour ' + email + '\n\nToken: ' + token + '\n\n(Ouvrez la console pour voir les détails)');
     
     // Afficher un message d'envoi en cours
     var btn = document.querySelector('#fF .bS');

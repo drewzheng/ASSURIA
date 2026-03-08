@@ -2349,10 +2349,60 @@ function updateTrialTime() {
                 }
             }
             
-            // Si pas trouvé dans localStorage, essayer Google Sheet
-            // Note: Cette partie nécessiterait une API externe pour vérifier le token
-            // Pour l'instant, on affiche un message d'erreur
-            msg.innerHTML = '<span style="color:red;">❌ Lien invalide ou expiré.<br><br>💡 Si vous avez demandé le reset sur un autre navigateur, utilisez le même navigateur pour cliquer sur le lien.</span>';
+            // Si pas trouvé dans localStorage, vérifier dans Google Sheet via webhook
+            msg.innerHTML = '⏳ Vérification dans la base de données...';
+            
+            // Utiliser le webhook existant pour récupérer les tokens
+            // Note: On utilise une requête GET avec JSONP pour contourner CORS
+            fetch('https://aibailleur-n8n.dqlisb.easypanel.host/webhook/assuria-lead', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    action: 'verify_token',
+                    email: resetEmail,
+                    token: resetToken
+                })
+            }).then(function(response) {
+                return response.json();
+            }).then(function(data) {
+                // Si le token est valide côté serveur, mettre à jour le mot de passe
+                // Pour l'instant, on met à jour le localStorage
+                if(data.success || data.valid) {
+                    // Trouver l'utilisateur dans localStorage
+                    for(var i = 0; i < users.length; i++) {
+                        if(users[i].e.toLowerCase() === resetEmail.toLowerCase()) {
+                            users[i].pw = newPass;
+                            delete users[i].resetToken;
+                            delete users[i].resetExpiry;
+                            localStorage.setItem('aiaUs', JSON.stringify(users));
+                            msg.innerHTML = '<span style="color:green;">✅ Mot de passe modifié ! Redirection...</span>';
+                            setTimeout(function() {
+                                window.location.href = 'https://drewzheng.github.io/ASSURIA/';
+                            }, 2000);
+                            return;
+                        }
+                    }
+                    // Si utilisateur pas dans localStorage, le créer
+                    var newUser = {
+                        p: 'Utilisateur',
+                        n: '',
+                        e: resetEmail,
+                        pw: newPass,
+                        te: Date.now() + 3*24*60*60*1000
+                    };
+                    users.push(newUser);
+                    localStorage.setItem('aiaUs', JSON.stringify(users));
+                    msg.innerHTML = '<span style="color:green;">✅ Mot de passe modifié ! Redirection...</span>';
+                    setTimeout(function() {
+                        window.location.href = 'https://drewzheng.github.io/ASSURIA/';
+                    }, 2000);
+                } else {
+                    msg.innerHTML = '<span style="color:red;">❌ Lien invalide ou expiré.</span>';
+                }
+            }).catch(function(error) {
+                console.error('Erreur:', error);
+                msg.innerHTML = '<span style="color:red;">❌ Erreur de connexion. Réessayez.</span>';
+            });
         };
     }
 })();
